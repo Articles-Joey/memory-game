@@ -116,12 +116,12 @@ export default function LobbyPage() {
                 />
             }
 
-            {showPrivateGameModal &&
+            {/* {showPrivateGameModal &&
                 <PrivateGameModal
                     show={showPrivateGameModal}
                     setShow={setShowPrivateGameModal}
                 />
-            }
+            } */}
 
             <div className='background-wrap'>
                 <Image
@@ -283,7 +283,7 @@ export default function LobbyPage() {
                             Rules & Controls
                         </ArticlesButton>
 
-                        <Link href={'/'} className='w-50'>
+                        <Link href={'https://github.com/Articles-Joey/memory-game'} className='w-50'>
                             <ArticlesButton
                                 className={`w-100`}
                                 small
@@ -291,8 +291,8 @@ export default function LobbyPage() {
 
                                 }}
                             >
-                                <i className="fad fa-sign-out fa-rotate-180"></i>
-                                Leave Game
+                                <i className="fab fa-github"></i>
+                                Github
                             </ArticlesButton>
                         </Link>
 
