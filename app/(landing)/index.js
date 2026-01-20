@@ -229,12 +229,22 @@ export default function LobbyPage() {
             } */}
 
             <div className='background-wrap'>
-                <Image
-                    src={`${process.env.NEXT_PUBLIC_CDN}games/Memory Game/memory-game-toontown-thumbnail.webp`}
-                    alt=""
-                    fill
-                    style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
-                />
+                {darkMode ?
+                    <img
+                        src={`img/dark-preview.webp`}
+                        alt=""
+                        // fill
+                        // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
+                    />
+                    :
+                    <img
+                        src={`img/preview.webp`}
+                        alt=""
+                        // fill
+                        // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
+                    />
+                }
+
             </div>
 
             <div className="container d-flex flex-column-reverse flex-lg-row justify-content-center align-items-center">
@@ -253,7 +263,7 @@ export default function LobbyPage() {
                             // fill
                             width={200}
                             height={200}
-                            style={{ 
+                            style={{
                                 objectFit: 'contain',
                                 // height: '200px',
                                 // width: '200px',

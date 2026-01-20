@@ -13,6 +13,7 @@ import { Cards } from "./Cards";
 import Tree from "./Tree";
 import { ModelKennyNLNatureFencePlanksDouble } from "@/components/Models/fence_planksDouble";
 import { useGameStore } from "@/hooks/useGameStore";
+import { useStore } from "@/hooks/useStore";
 
 const texture = new TextureLoader().load(`${process.env.NEXT_PUBLIC_CDN}games/Race Game/grass.jpg`)
 
@@ -43,6 +44,8 @@ function GameCanvas(props) {
     } = useGameStore(state => ({
         debug: state.debug,
     }));
+
+    const darkMode = useStore(state => state.darkMode)
 
     let gameContent = (
         <>
@@ -75,10 +78,27 @@ function GameCanvas(props) {
             />
 
             <Sky
-                sunPosition={[0, 10, 0]}
+                sunPosition={darkMode ?
+                    [0, -10, 0]
+                    :
+                    [0, 10, 0]
+                }
             />
 
-            <ambientLight intensity={3} />
+            <ambientLight intensity={
+                darkMode ?
+                    0
+                    :
+                    3
+            } />
+
+            <directionalLight position={[10, 10, 5]} intensity={darkMode ? 0.3 : 0.8} castShadow />
+            <directionalLight
+                position={[0, 10, 0]}
+                intensity={darkMode ? 0.5 : 0.4
+                }
+            />
+
             {/* <spotLight intensity={30000} position={[-50, 100, 50]} angle={5} penumbra={1} /> */}
 
             <GrassPlane />

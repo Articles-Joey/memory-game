@@ -46,6 +46,9 @@ function LeftPanelContent(props) {
         timer: state.timer
     }));
 
+    const darkMode = useStore(state => state.darkMode);
+    const toggleDarkMode = useStore(state => state.toggleDarkMode);
+
     const sidebar = useStore(state => state.sidebar);
     const toggleSidebar = useStore(state => state.toggleSidebar);
 
@@ -102,7 +105,7 @@ function LeftPanelContent(props) {
                         Sidebar
                     </ArticlesButton>
 
-                     <ArticlesButton
+                    <ArticlesButton
                         size="sm"
                         className="w-50"
                         onClick={reloadScene}
@@ -110,6 +113,33 @@ function LeftPanelContent(props) {
                         <i className="fad fa-redo"></i>
                         Reload Game
                     </ArticlesButton>
+
+                    <div className='w-50 d-flex'>
+                        <ArticlesButton
+                            // ref={el => elementsRef.current[4] = el}
+                            // active={activeIndex === 3}
+                            className={`w-100 flex-grow-1`}
+                            small
+                            onClick={() => {
+                                setShowSettingsModal(true)
+                            }}
+                        >
+                            <i className="fad fa-cog"></i>
+                            Settings
+                        </ArticlesButton>
+                        <ArticlesButton
+                            // ref={el => elementsRef.current[4] = el}
+                            // active={activeIndex === 3}
+                            className={`flex-grow-0`}
+                            small
+                            onClick={() => {
+                                toggleDarkMode()
+                            }}
+                        >
+                            {darkMode ? <i className="fad fa-moon"></i> : <i className="fad fa-sun"></i>}
+                            {/* <i className="fad fa-sun"></i> */}
+                        </ArticlesButton>
+                    </div>
 
                     <div className="w-50">
                         <DropdownButton

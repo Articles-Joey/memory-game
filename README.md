@@ -1,6 +1,6 @@
 # Memory Game
 
-![Game Preview](/public/img/game-preview.webp)
+![Game Preview](/public/img/preview.webp)
 
 The objective is to clear the board by matching two cards one-by-one within the time limit. The player must flip the cards over to reveal an image and find a matching card hidden somewhere on the board. Only two cards can be flipped at once.
 
