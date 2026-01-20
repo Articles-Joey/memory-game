@@ -16,9 +16,10 @@ import useFullscreen from '@/hooks/useFullScreen';
 import { useControllerStore } from '@/hooks/useControllerStore';
 
 import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';
-import LeftPanelContent from '@/components/Game/LeftPanel';
+import LeftPanelContent from '@/components/UI/LeftPanel';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { useGameStore } from '@/hooks/useGameStore';
+import { useStore } from '@/hooks/useStore';
 
 const GameCanvas = dynamic(() => import('@/components/Game/GameCanvas'), {
     ssr: false,
@@ -107,6 +108,9 @@ export default function GamePage() {
         generateMatchPairs: state.generateMatchPairs
     }));
 
+    const sidebar = useStore(state => state.sidebar);
+    const toggleSidebar = useStore(state => state.toggleSidebar);
+
     useEffect(() => {
 
         setTimer(0)
@@ -127,13 +131,13 @@ export default function GamePage() {
     return (
 
         <div
-            className={`${game_key}-game-page ${isFullscreen && 'fullscreen'}`}
+            className={`${game_key}-game-page ${isFullscreen && 'fullscreen'} ${sidebar ? 'sidebar-enabled' : ''} ${showMenu ? 'show-menu' : ''}`}
             id={`${game_key}-game-page`}
         >
 
-            <div className="menu-bar card card-articles p-1 justify-content-center">
+            <div className="menu-bar card card-articles p-1 ">
 
-                <div className='flex-header align-items-center'>
+                <div className='flex-header justify-content-center align-items-center'>
 
                     <ArticlesButton
                         small
@@ -154,7 +158,7 @@ export default function GamePage() {
 
             </div>
 
-            <div className={`mobile-menu ${showMenu && 'show'}`}>
+            <div className={`mobile-menu ${(showMenu || (!sidebar && showMenu)) && 'show'}`}>
                 <LeftPanelContent
                     {...panelProps}
                 />
@@ -164,7 +168,7 @@ export default function GamePage() {
                 touchControlsEnabled={touchControlsEnabled}
             /> */}
 
-            <div className='panel-left card rounded-0 d-none d-lg-flex'>
+            <div className='panel-left card rounded-0'>
 
                 <LeftPanelContent
                     {...panelProps}

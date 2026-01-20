@@ -1,136 +1,73 @@
+import { memo, useMemo } from "react";
+
 import Link from "next/link";
 
 // import ROUTES from '@/components/constants/routes';
-// import { useGameStore } from "../hooks/useGameStore";
+
 import ArticlesButton from "@/components/UI/Button";
 
-// import ControllerPreview from "../../ControllerPreview";
-
 import { useSocketStore } from "@/hooks/useSocketStore";
-import { useIceSlideStore } from "@/hooks/useIceSlideStore";
-import { useEffect, useRef } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useGameStore } from "@/hooks/useGameStore";
+import { Dropdown, DropdownButton } from "react-bootstrap";
+import { useStore } from "@/hooks/useStore";
 
-export default function LeftPanelContent(props) {
+function LeftPanelContent(props) {
 
     const {
-        server,
-        // players,
-        touchControlsEnabled,
-        setTouchControlsEnabled,
-        reloadScene,
-        controllerState,
         isFullscreen,
         requestFullscreen,
         exitFullscreen,
-        setShowMenu
+        reloadScene
     } = props;
 
-    const {
-        hitRotation,
-        setHitRotation,
-        hitPower,
-        setHitPower
-    } = useIceSlideStore(state => ({
-        hitRotation: state.hitRotation,
-        setHitRotation: state.setHitRotation,
-        hitPower: state.hitPower,
-        setHitPower: state.setHitPower,
-    }));
+    // const {
+    //     socket,
+    // } = useSocketStore(state => ({
+    //     socket: state.socket,
+    // }));
 
     const {
-        socket,
-    } = useSocketStore(state => ({
-        socket: state.socket,
+        matchPairs,
+        setMatchPairs,
+        generateMatchPairs,
+        flipCount,
+        cameraMode,
+        debug,
+        setDebug,
+        timer
+    } = useGameStore(state => ({
+        matchPairs: state.matchPairs,
+        setMatchPairs: state.setMatchPairs,
+        generateMatchPairs: state.generateMatchPairs,
+        flipCount: state.flipCount,
+        cameraMode: state.cameraMode,
+        debug: state.debug,
+        setDebug: state.setDebug,
+        timer: state.timer
     }));
 
-    const hitRotationRef = useRef(hitRotation);
-    useEffect(() => {
-        hitRotationRef.current = hitRotation;
-    }, [hitRotation]);
+    const sidebar = useStore(state => state.sidebar);
+    const toggleSidebar = useStore(state => state.toggleSidebar);
 
-    useHotkeys(['Right'], () => {
-        console.log("test", hitRotationRef.current)
-        if (hitRotationRef.current >= 360) {
-            setHitRotation(0)
-            return
-        }
-        setHitRotation(hitRotationRef.current + 1)
-    });
-    useHotkeys(['Left'], () => {
-        console.log("test", hitRotationRef.current)
-        if (hitRotationRef.current <= 0) {
-            setHitRotation(360)
-            return
-        }
-        setHitRotation(hitRotationRef.current - 1)
-    });
-
-    const hitPowerRef = useRef(hitPower);
-    useEffect(() => {
-        hitPowerRef.current = hitPower;
-    }, [hitPower]);
-
-    useHotkeys(['Up'], () => {
-        // console.log("test", hitPowerRef.current)
-        if (hitPowerRef.current >= 100) {
-            return
-        }
-        setHitPower(hitPowerRef.current + 1)
-    });
-    useHotkeys(['Down'], () => {
-        // console.log("test", hitPowerRef.current)
-        if (hitPowerRef.current <= 0) {
-            return
-        }
-        setHitPower(hitPowerRef.current - 1)
-    });
-    
-    useHotkeys(['Enter'], () => {
-        console.log("Launch?")
-    });
+    const flippedCards = useMemo(() => {
+        let cards = matchPairs.filter(obj => obj.flipped)
+        console.log(cards)
+        return cards
+    }, [matchPairs])
 
     return (
         <div className='w-100'>
 
             <div className="card card-articles card-sm">
 
-                <div className="card-body">
-
-                    <div className='flex-header'>
-                        <div>Server: {server}</div>
-                        <div>Players: {0}/4</div>
-                    </div>
-
-                    {!socket?.connected &&
-                        <div
-                            className=""
-                        >
-
-                            <div className="">
-
-                                <div className="h6 mb-1">Not connected</div>
-
-                                <ArticlesButton
-                                    onClick={() => {
-                                        console.log("Reconnect")
-                                        socket.connect()
-                                    }}
-                                >
-                                    Reconnect!
-                                </ArticlesButton>
-
-                            </div>
-
-                        </div>
-                    }
+                <div className="card-body d-flex flex-wrap">
 
                     <Link
-                        href={'/'}
-                        className=""
+                        href={"/"}
+                        className="w-50"
                     >
                         <ArticlesButton
-                            className='w-50'
+                            className='w-100'
                             small
                         >
                             <i className="fad fa-arrow-alt-square-left"></i>
@@ -146,7 +83,7 @@ export default function LeftPanelContent(props) {
                             if (isFullscreen) {
                                 exitFullscreen()
                             } else {
-                                requestFullscreen('maze-game-page')
+                                requestFullscreen('memory-game-game-page')
                             }
                         }}
                     >
@@ -155,83 +92,113 @@ export default function LeftPanelContent(props) {
                         <span>Fullscreen</span>
                     </ArticlesButton>
 
-                </div>
-            </div>
+                    <ArticlesButton
+                        size="sm"
+                        className="w-50"
+                        active={sidebar}
+                        onClick={() => toggleSidebar()}
+                    >
+                        <i className="fad fa-bars"></i>
+                        Sidebar
+                    </ArticlesButton>
 
-            {/* <div
-                className="card card-articles card-sm"
-            >
-                <div className="card-body d-flex justify-content-between">
+                     <ArticlesButton
+                        size="sm"
+                        className="w-50"
+                        onClick={reloadScene}
+                    >
+                        <i className="fad fa-redo"></i>
+                        Reload Game
+                    </ArticlesButton>
 
-                    <div>
-                        <div className="small text-muted">playerData</div>
-                        <div className="small">
-                            <div>X: {playerLocation?.x}</div>
-                            <div>Y: {playerLocation?.y}</div>
-                            <div>Z: {playerLocation?.z}</div>
-                            <div>Shift: {shift ? 'True' : 'False'}</div>
-                            <div>Score: 0</div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="small text-muted">maxHeight</div>
-                        <div>Y: {maxHeight}</div>
-                        <ArticlesButton
-                            small
-                            onClick={() => {
-                                setMaxHeight(playerLocation?.y)
-                            }}
+                    <div className="w-50">
+                        <DropdownButton
+                            variant="articles w-100"
+                            size='sm'
+                            disabled
+                            id="dropdown-basic-button"
+                            className="dropdown-articles"
+                            title={
+                                <span>
+                                    <i className="fad fa-camera"></i>
+                                    <span>Camera</span>
+                                </span>
+                            }
                         >
-                            Reset
-                        </ArticlesButton>
+
+                            <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
+
+                                {[
+                                    {
+                                        name: 'Free',
+                                    },
+                                    {
+                                        name: 'Player',
+                                    }
+                                ]
+                                    .map(location =>
+                                        <Dropdown.Item
+                                            key={location.name}
+                                            active={cameraMode == location.name}
+                                            onClick={() => {
+                                                setCameraMode(location.name)
+                                                setShowMenu(false)
+                                            }}
+                                            className="d-flex justify-content-between"
+                                        >
+                                            <i className="fad fa-camera"></i>
+                                            {location.name}
+                                        </Dropdown.Item>
+                                    )}
+
+                            </div>
+
+                        </DropdownButton>
+                    </div>
+
+                    <div className='w-50'>
+                        <DropdownButton
+                            variant="articles w-100"
+                            size='sm'
+                            id="dropdown-basic-button"
+                            className="dropdown-articles"
+                            title={
+                                <span>
+                                    <i className="fad fa-bug"></i>
+                                    <span>Debug </span>
+                                    <span>{debug ? 'On' : 'Off'}</span>
+                                </span>
+                            }
+                        >
+
+                            <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
+
+                                {[
+                                    false,
+                                    true
+                                ]
+                                    .map(location =>
+                                        <Dropdown.Item
+                                            key={location}
+                                            onClick={() => {
+                                                setDebug(location)
+                                                reloadScene()
+                                            }}
+                                            className="d-flex justify-content-between"
+                                        >
+                                            {location ? 'True' : 'False'}
+                                        </Dropdown.Item>
+                                    )}
+
+                            </div>
+
+                        </DropdownButton>
                     </div>
 
                 </div>
-            </div> */}
 
-            {/* Touch Controls */}
-            <div
-                className="card card-articles card-sm"
-            >
-                <div className="card-body">
-
-                    <div className="small text-muted">Touch Controls</div>
-
-                    <div className='d-flex flex-column'>
-
-                        <div>
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                active={!touchControlsEnabled}
-                                onClick={() => {
-                                    setTouchControlsEnabled(false)
-                                }}
-                            >
-                                <i className="fad fa-redo"></i>
-                                Off
-                            </ArticlesButton>
-
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                active={touchControlsEnabled}
-                                onClick={() => {
-                                    setTouchControlsEnabled(true)
-                                }}
-                            >
-                                <i className="fad fa-redo"></i>
-                                On
-                            </ArticlesButton>
-                        </div>
-
-                    </div>
-
-                </div>
             </div>
 
-            {/* Debug Controls */}
             <div
                 className="card card-articles card-sm"
             >
@@ -239,75 +206,56 @@ export default function LeftPanelContent(props) {
 
                     <div className="small text-muted">Debug Controls</div>
 
-                    <div className="small border p-2">
-                        <div>Rotation Angle: {hitRotation}</div>
-                        <div>Power: {hitPower}/100</div>
-                    </div>
+                    <div className="border p-2">
 
-                    <div className='d-flex flex-column'>
+                        <div className="small">Timer: {timer}</div>
+
+                        <div className="small">Flip Count: {flipCount}</div>
+
+                        <div className="small">Flipped:</div>
 
                         <div>
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                onClick={reloadScene}
-                            >
-                                <i className="fad fa-redo"></i>
-                                Reload Game
-                            </ArticlesButton>
-
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                onClick={reloadScene}
-                            >
-                                <i className="fad fa-redo"></i>
-                                Reset Camera
-                            </ArticlesButton>
+                            {flippedCards?.map(obj => {
+                                return (
+                                    <span key={obj.flatLocation} className="badge bg-dark border border-black">
+                                        {obj.flatLocation}
+                                    </span>
+                                )
+                            })}
                         </div>
+
+                    </div>
+
+                    <div className="small border p-2">
+
+                        <ArticlesButton
+                            small
+                            className="w-100"
+                            onClick={() => {
+                                console.log(matchPairs)
+                            }}
+                        >
+                            Log Match Pairs
+                        </ArticlesButton>
+
+                        <ArticlesButton
+                            small
+                            className="w-100"
+                            onClick={() => {
+                                generateMatchPairs(4, 8)
+                            }}
+                        >
+                            Generate New Match Pairs
+                        </ArticlesButton>
 
                     </div>
 
                 </div>
             </div>
 
-            {controllerState?.connected &&
-                <div className="panel-content-group p-0 text-dark">
-
-                    <div className="p-1 border-bottom border-dark">
-                        <div className="fw-bold" style={{ fontSize: '0.7rem' }}>
-                            {controllerState?.id}
-                        </div>
-                    </div>
-
-                    <div className='p-1'>
-                        <ArticlesButton
-                            small
-                            className="w-100"
-                            active={showControllerState}
-                            onClick={() => {
-                                setShowControllerState(prev => !prev)
-                            }}
-                        >
-                            {showControllerState ? 'Hide' : 'Show'} Controller Preview
-                        </ArticlesButton>
-                    </div>
-
-                    {/* {showControllerState && <div className='p-3'>
-
-                        <ControllerPreview
-                            controllerState={controllerState}
-                            showJSON={true}
-                            showVibrationControls={true}
-                            maxHeight={300}
-                            showPreview={true}
-                        />
-                    </div>} */}
-
-                </div>
-            }
-
         </div>
     )
 
 }
+
+export default memo(LeftPanelContent)
