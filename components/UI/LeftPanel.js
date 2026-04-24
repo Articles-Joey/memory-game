@@ -11,14 +11,18 @@ import { useGameStore } from "@/hooks/useGameStore";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import { useStore } from "@/hooks/useStore";
 
+import useFullscreen from '@articles-media/articles-dev-box/useFullscreen';
+import DebugPanel from "./DebugPanel";
+
 function LeftPanelContent(props) {
 
     const {
-        isFullscreen,
-        requestFullscreen,
-        exitFullscreen,
         reloadScene
     } = props;
+
+    const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
+
+    const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
 
     // const {
     //     socket,
@@ -26,37 +30,16 @@ function LeftPanelContent(props) {
     //     socket: state.socket,
     // }));
 
-    const {
-        matchPairs,
-        setMatchPairs,
-        generateMatchPairs,
-        flipCount,
-        cameraMode,
-        debug,
-        setDebug,
-        timer
-    } = useGameStore(state => ({
-        matchPairs: state.matchPairs,
-        setMatchPairs: state.setMatchPairs,
-        generateMatchPairs: state.generateMatchPairs,
-        flipCount: state.flipCount,
-        cameraMode: state.cameraMode,
-        debug: state.debug,
-        setDebug: state.setDebug,
-        timer: state.timer
-    }));
+    const cameraMode = useGameStore(state => state.cameraMode)
+    const setCameraMode = useGameStore(state => state.setCameraMode)
+    const debug = useGameStore(state => state.debug)
+    const setDebug = useGameStore(state => state.setDebug)
 
     const darkMode = useStore(state => state.darkMode);
     const toggleDarkMode = useStore(state => state.toggleDarkMode);
 
     const sidebar = useStore(state => state.sidebar);
     const toggleSidebar = useStore(state => state.toggleSidebar);
-
-    const flippedCards = useMemo(() => {
-        let cards = matchPairs.filter(obj => obj.flipped)
-        console.log(cards)
-        return cards
-    }, [matchPairs])
 
     return (
         <div className='w-100'>
@@ -86,7 +69,7 @@ function LeftPanelContent(props) {
                             if (isFullscreen) {
                                 exitFullscreen()
                             } else {
-                                requestFullscreen('memory-game-game-page')
+                                requestFullscreen()
                             }
                         }}
                     >
@@ -229,59 +212,9 @@ function LeftPanelContent(props) {
 
             </div>
 
-            <div
-                className="card card-articles card-sm"
-            >
-                <div className="card-body">
-
-                    <div className="small text-muted">Debug Controls</div>
-
-                    <div className="border p-2">
-
-                        <div className="small">Timer: {timer}</div>
-
-                        <div className="small">Flip Count: {flipCount}</div>
-
-                        <div className="small">Flipped:</div>
-
-                        <div>
-                            {flippedCards?.map(obj => {
-                                return (
-                                    <span key={obj.flatLocation} className="badge bg-dark border border-black">
-                                        {obj.flatLocation}
-                                    </span>
-                                )
-                            })}
-                        </div>
-
-                    </div>
-
-                    <div className="small border p-2">
-
-                        <ArticlesButton
-                            small
-                            className="w-100"
-                            onClick={() => {
-                                console.log(matchPairs)
-                            }}
-                        >
-                            Log Match Pairs
-                        </ArticlesButton>
-
-                        <ArticlesButton
-                            small
-                            className="w-100"
-                            onClick={() => {
-                                generateMatchPairs(4, 8)
-                            }}
-                        >
-                            Generate New Match Pairs
-                        </ArticlesButton>
-
-                    </div>
-
-                </div>
-            </div>
+            {debug &&
+                <DebugPanel />
+            }
 
         </div>
     )

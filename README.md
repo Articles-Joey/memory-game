@@ -22,6 +22,9 @@ This game was inspired by a mini game inside the game Toontown Online.
 
 [Memory Game wiki info](https://toontown.fandom.com/wiki/Toon_Memory_Game)
 
-## Attribution
+## Attributions
 
-[Cards Icon](https://www.flaticon.com/free-icon/card-games_2118338?term=card&page=1&position=41&origin=tag&related_id=2118338)
+[Cards Icon](https://www.flaticon.com/free-icon/card-games_2118338?term=card&page=1&position=41&origin=tag&related_id=2118338)  
+[Grass Texture - Poliigon]()  
+[Deer Model - Quaternius]()  
+[Player Model]()  

@@ -1,7 +1,7 @@
 import { createContext, createRef, forwardRef, memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { Sky, useDetectGPU, useTexture, OrbitControls, Cylinder, QuadraticBezierLine, Text, Image } from "@react-three/drei";
+import { Sky, useDetectGPU, useTexture, OrbitControls, Cylinder, QuadraticBezierLine, Text, Image, Stats } from "@react-three/drei";
 
 import { NearestFilter, RepeatWrapping, TextureLoader, Vector3 } from "three";
 
@@ -11,27 +11,50 @@ import Player from "./Player";
 // import { useHotkeys } from "react-hotkeys-hook";
 import { Cards } from "./Cards";
 import Tree from "./Tree";
+import TreeArea from "./TreeArea";
 import { ModelKennyNLNatureFencePlanksDouble } from "@/components/Models/fence_planksDouble";
 import { useGameStore } from "@/hooks/useGameStore";
 import { useStore } from "@/hooks/useStore";
-
-const texture = new TextureLoader().load(`${process.env.NEXT_PUBLIC_CDN}games/Race Game/grass.jpg`)
+import FenceSquare from "./FenceSquare";
+import GrassArea from "./GrassArea";
 
 const GrassPlane = () => {
+    const graphicsQuality = useStore(state => state.graphicsQuality)
+    const [colorMap, normalMap] = useTexture([
+        '/textures/Grass/Poliigon_GrassPatchyGround_4585_BaseColor.jpg',
+        '/textures/Grass/Poliigon_GrassPatchyGround_4585_Normal.png'
+    ])
 
-    const width = 100; // Set the width of the plane
-    const height = 100; // Set the height of the plane
+    let width
+    let height
 
-    texture.magFilter = NearestFilter;
-    texture.wrapS = RepeatWrapping
-    texture.wrapT = RepeatWrapping
-    texture.repeat.set(5, 5)
+    let baseAmount = 300
+
+    if (graphicsQuality == 'Low') {
+        width = baseAmount
+        height = baseAmount
+    }
+    if (graphicsQuality == 'Medium') {
+        width = baseAmount * 2
+        height = baseAmount * 2
+    }
+    if (graphicsQuality == 'High') {
+        width = baseAmount * 3
+        height = baseAmount * 3
+    }
+
+    [colorMap, normalMap].forEach((t) => {
+        t.magFilter = NearestFilter;
+        t.wrapS = RepeatWrapping
+        t.wrapT = RepeatWrapping
+        t.repeat.set(width / 10, height / 10)
+    })
 
     return (
         <>
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
                 <planeGeometry attach="geometry" args={[width, height]} />
-                <meshStandardMaterial attach="material" map={texture} />
+                <meshStandardMaterial attach="material" map={colorMap} normalMap={normalMap} />
             </mesh>
         </>
     );
@@ -73,6 +96,13 @@ function GameCanvas(props) {
     return (
         <Canvas camera={{ position: [0, 50, 30], fov: 50 }}>
 
+            {process.env.NODE_ENV === 'development' &&
+                <>
+                    <axesHelper args={[5]} />
+                    <Stats />
+                </>
+            }
+
             <OrbitControls
             // autoRotate={gameState?.status == 'In Lobby'}
             />
@@ -104,7 +134,7 @@ function GameCanvas(props) {
             <GrassPlane />
 
             {/* Trees */}
-            <group>
+            {/* <group>
                 <group
                     position={[-45, 0, -30]}
                 >
@@ -130,10 +160,14 @@ function GameCanvas(props) {
                         )
                     })}
                 </group>
-            </group>
+            </group> */}
+
+            <TreeArea />
+            <FenceSquare />
+            <GrassArea />
 
             {/* Fence */}
-            <group>
+            {/* <group>
                 <group
                     position={[-43, 0, -30]}
                 >
@@ -162,7 +196,7 @@ function GameCanvas(props) {
                         )
                     })}
                 </group>
-            </group>
+            </group> */}
 
             <Physics>
 

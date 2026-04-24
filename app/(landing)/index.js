@@ -50,6 +50,8 @@ import useUserToken from '@articles-media/articles-dev-box/useUserToken';
 
 import { GamepadKeyboard, PieMenu } from '@articles-media/articles-gamepad-helper';
 import { useStore } from '@/hooks/useStore';
+import { useSocketStore } from '@/hooks/useSocketStore';
+// import { set } from 'lodash';
 
 const ReturnToLauncherButton = dynamic(() =>
     import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
@@ -58,16 +60,36 @@ const ReturnToLauncherButton = dynamic(() =>
 
 export default function LobbyPage() {
 
+    const socket = useSocketStore(state => state.socket)
+    const connected = useSocketStore(state => state.connected)
+
+    const _hasHydrated = useStore((state) => state._hasHydrated)
+
     const darkMode = useStore((state) => state.darkMode)
     const toggleDarkMode = useStore((state) => state.toggleDarkMode)
 
     const nickname = useStore((state) => state.nickname)
     const setNickname = useStore((state) => state.setNickname)
+    const randomNickname = useStore((state) => state.randomNickname)
     const nicknameKeyboard = useStore((state) => state.nicknameKeyboard)
 
     const setShowInfoModal = useStore((state) => state.setShowInfoModal)
     const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
     const setShowCreditsModal = useStore((state) => state.setShowCreditsModal)
+
+    const lobbyDetails = useStore((state) => state.lobbyDetails)
+
+    useEffect(() => {
+
+        if (connected) {
+            socket?.emit('join-room', `game:${game_key}-landing`);
+        }
+
+        return function cleanup() {
+            socket?.emit('leave-room', `game:${game_key}-landing`)
+        };
+
+    }, [connected]);
 
     // const {
     //     socket,
@@ -76,7 +98,7 @@ export default function LobbyPage() {
     // }));
 
     // const userReduxState = useSelector((state) => state.auth.user_details)
-    const userReduxState = false
+    // const userReduxState = false
 
     // const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
 
@@ -84,10 +106,10 @@ export default function LobbyPage() {
     // const [showSettingsModal, setShowSettingsModal] = useState(false)
     // const [showPrivateGameModal, setShowPrivateGameModal] = useState(false)
 
-    const [lobbyDetails, setLobbyDetails] = useState({
-        players: [],
-        games: [],
-    })
+    // const [lobbyDetails, setLobbyDetails] = useState({
+    //     players: [],
+    //     games: [],
+    // })
 
     // useEffect(() => {
 
@@ -207,41 +229,20 @@ export default function LobbyPage() {
                 />
             </Suspense>
 
-            {/* {showInfoModal &&
-                <InfoModal
-                    show={showInfoModal}
-                    setShow={setShowInfoModal}
-                />
-            }
-
-            {showSettingsModal &&
-                <SettingsModal 
-                    show={showSettingsModal}
-                    setShow={setShowSettingsModal}
-                />
-            } */}
-
-            {/* {showPrivateGameModal &&
-                <PrivateGameModal
-                    show={showPrivateGameModal}
-                    setShow={setShowPrivateGameModal}
-                />
-            } */}
-
             <div className='background-wrap'>
                 {darkMode ?
                     <img
                         src={`img/dark-preview.webp`}
                         alt=""
-                        // fill
-                        // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
+                    // fill
+                    // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
                     />
                     :
                     <img
                         src={`img/preview.webp`}
                         alt=""
-                        // fill
-                        // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
+                    // fill
+                    // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
                     />
                 }
 
@@ -258,7 +259,7 @@ export default function LobbyPage() {
                         style={{ position: 'relative' }}
                     >
                         <Image
-                            src={"/img/icon.png?v=2"}
+                            src={"/img/icon.png"}
                             alt="Logo"
                             // fill
                             width={200}
@@ -293,14 +294,37 @@ export default function LobbyPage() {
                                         setValue={setNickname}
                                         noMargin
                                     /> */}
-                                    <input
+                                    {/* <input
                                         type="text"
                                         value={nickname}
                                         onChange={(e) => setNickname(e.target.value)}
                                         className="form-control"
                                         id="nickname"
                                         placeholder="Enter your nickname"
-                                    />
+                                    /> */}
+                                    <div className="d-flex align-items-center">
+                                        <input
+                                            type="text"
+                                            value={_hasHydrated ? nickname : ''}
+                                            disabled={!_hasHydrated}
+                                            id="nickname"
+                                            name="nickname"
+                                            placeholder="Enter your nickname"
+                                            onChange={(e) => {
+                                                setNickname(e.target.value)
+                                            }}
+                                            className={`form-control form-control-sm`}
+                                        />
+                                        <ArticlesButton
+                                            small
+                                            className=""
+                                            onClick={() => {
+                                                randomNickname()
+                                            }}
+                                        >
+                                            <i className="fad fa-random"></i>
+                                        </ArticlesButton>
+                                    </div>
                                 </div>
 
                                 <div className='mt-1' style={{ fontSize: '0.8rem' }}>Visible to all players</div>
@@ -378,6 +402,7 @@ export default function LobbyPage() {
                                                 <ArticlesButton
                                                     className="px-5"
                                                     small
+                                                    disabled={!connected}
                                                 >
                                                     Join
                                                 </ArticlesButton>
@@ -433,13 +458,11 @@ export default function LobbyPage() {
                                 className={`w-50`}
                                 small
                                 onClick={() => {
-                                    setShowInfoModal({
-                                        game: game_name
-                                    })
+                                    setShowInfoModal(true)
                                 }}
                             >
                                 <i className="fad fa-info-square"></i>
-                                Rules & Controls
+                                Info
                             </ArticlesButton>
 
                             <Link href={'https://github.com/Articles-Joey/memory-game'} className='w-50'>
@@ -459,9 +482,7 @@ export default function LobbyPage() {
                                 className={`w-50`}
                                 small
                                 onClick={() => {
-                                    setShowInfoModal({
-                                        game: game_name
-                                    })
+                                    setShowCreditsModal(true)
                                 }}
                             >
                                 <i className="fad fa-users"></i>

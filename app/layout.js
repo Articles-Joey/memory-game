@@ -14,11 +14,11 @@ import "@articles-media/articles-dev-box/dist/style.css";
 
 import "@articles-media/articles-gamepad-helper/dist/articles-gamepad-helper.css";
 
-// import SocketLogicHandler from "@/components/SocketLogicHandler";
 import { Suspense } from 'react';
 import GlobalClientModals from '@/components/UI/GlobalClientModals';
 import DarkModeHandler from '@/components/UI/DarkModeHandler';
 import LayoutClient from './layout-client';
+import SocketLogicHandler from '@/components/SocketLogicHandler';
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -51,6 +51,8 @@ export default function RootLayout({ children }) {
       <body
       // className={`${geistSans.variable} ${geistMono.variable}`}
       >
+
+        <SocketLogicHandler />
 
         <Suspense>
           {/* <SocketLogicHandler /> */}

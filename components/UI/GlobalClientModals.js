@@ -1,4 +1,5 @@
 "use client";
+import { useAudioStore } from '@/hooks/useAudioStore';
 import { useStore } from '@/hooks/useStore';
 import dynamic from 'next/dynamic'
 
@@ -8,12 +9,12 @@ const InfoModal = dynamic(
 )
 
 const SettingsModal = dynamic(
-    () => import('@/components/UI/SettingsModal'),
+    () => import('@articles-media/articles-dev-box/SettingsModal'),
     { ssr: false }
 )
 
 const CreditsModal = dynamic(
-    () => import('@/components/UI/CreditsModal'),
+    () => import('@articles-media/articles-dev-box/CreditsModal'),
     { ssr: false }
 )
 
@@ -41,6 +42,42 @@ export default function GlobalClientModals() {
                 <SettingsModal
                     show={showSettingsModal}
                     setShow={setShowSettingsModal}
+                    store={useStore}
+                    useAudioStore={useAudioStore}
+                    config={{
+                        tabs: {
+                            'Graphics': {
+                                darkMode: true,
+                                landingAnimation: true
+                            },
+                            'Audio': {
+                                sliders: [
+                                    {
+                                        key: "gameVolume",
+                                        label: "Game Volume"
+                                    },
+                                    {
+                                        key: "musicVolume",
+                                        label: "Music Volume"
+                                    }
+                                ]
+                            },
+                            'Controls': {
+                                defaultKeyBindings: {
+                                    // moveUp: "W",
+                                    // moveDown: "S",
+                                    // moveLeft: "A",
+                                    // moveRight: "D",
+                                }
+                            },
+                            'Multiplayer': {
+                                visible: false,
+                            },
+                            'Other': {
+
+                            }
+                        }
+                    }}
                 />
             }
 
@@ -48,6 +85,8 @@ export default function GlobalClientModals() {
                 <CreditsModal
                     show={showCreditsModal}
                     setShow={setShowCreditsModal}
+                    owner="Articles-Joey"
+                    repo="memory-game"
                 />
             }
         </>

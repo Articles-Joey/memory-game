@@ -20,17 +20,22 @@ export function Model(props) {
 
   const { previewConfig } = props
 
+
+  // Track the last played action to avoid rapid replays
+  const lastAction = React.useRef();
+
   useEffect(() => {
+    if (!actions) return;
+    const nextAction = props.action || 'Idle';
+    if (lastAction.current === nextAction) return;
 
-    console.log("Actions", actions)
+    // Stop all actions
     Object.values(actions).forEach((a) => a.stop());
-
-    if (props.action) {
-      actions[props.action].play();
-    } else {
-      actions[`Idle`].play();
+    // Play the new action
+    if (actions[nextAction]) {
+      actions[nextAction].play();
+      lastAction.current = nextAction;
     }
-
   }, [actions, props.action]);
 
   return (

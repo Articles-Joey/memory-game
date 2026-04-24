@@ -159,9 +159,9 @@ function Card({ args, position, name }) {
 
     const [occupied, setOccupied] = useState(false);
 
-    useHotkeys(['Space'], () => {
+    useHotkeys(['Space', 'Enter'], () => {
 
-        console.log("Space")
+        console.log("Flip called")
 
         if (
             occupied 

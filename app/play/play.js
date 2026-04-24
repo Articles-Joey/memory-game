@@ -87,10 +87,10 @@ export default function GamePage() {
         setTouchControlsEnabled,
         reloadScene,
         // controllerState,
-        isFullscreen,
-        requestFullscreen,
-        exitFullscreen,
-        setShowMenu
+        // isFullscreen,
+        // requestFullscreen,
+        // exitFullscreen,
+        // setShowMenu
     }
 
     const game_name = 'Memory Game'

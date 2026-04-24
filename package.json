@@ -13,22 +13,21 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@articles-media/articles-dev-box": "^1.0.12",
-    "@articles-media/articles-gamepad-helper": "^0.0.5",
+    "@articles-media/articles-dev-box": "^1.0.26",
+    "@articles-media/articles-gamepad-helper": "^0.0.13",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.7",
-    "@mui/material": "^7.3.7",
-    "@mui/material-nextjs": "^7.3.7",
+    "@mui/icons-material": "^7.3.10",
+    "@mui/material": "^7.3.10",
+    "@mui/material-nextjs": "^7.3.10",
     "@react-three/cannon": "^6.6.0",
     "@react-three/drei": "^10.5.0",
     "@react-three/fiber": "^9.2.0",
-    "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
-    "next": "^15.5.9",
+    "next": "^16.2.4",
     "nipplejs": "^0.10.2",
     "react": "^19.2.3",
     "react-bootstrap": "^2.10.10",
@@ -44,7 +43,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "^15.5.9"
+    "eslint": "^10",
+    "eslint-config-next": "^16.2.4"
   }
 }

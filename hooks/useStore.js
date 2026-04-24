@@ -1,9 +1,17 @@
+import generateRandomNickname from '@/util/generateRandomNickname';
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export const useStore = create()(
   persist(
     (set, get) => ({
+
+      _hasHydrated: false,
+      setHasHydrated: (state) => {
+        set({
+          _hasHydrated: state
+        });
+      },
 
       darkMode: true,
       toggleDarkMode: () => set({ darkMode: !get().darkMode }),
@@ -13,10 +21,16 @@ export const useStore = create()(
         }))
       },
 
-      nickname: '',
+      nickname: generateRandomNickname(),
       setNickname: (newValue) => {
         set((prev) => ({
           nickname: newValue
+        }))
+      },
+      randomNickname: () => {
+        const newNickname = generateRandomNickname();
+        set((prev) => ({
+          nickname: newNickname
         }))
       },
 
@@ -70,6 +84,15 @@ export const useStore = create()(
         }))
       },
 
+      graphicsQuality: "High",
+      setGraphicsQuality: (value) => set({ graphicsQuality: value }),
+
+      lobbyDetails: {
+        players: [],
+        games: [],
+      },
+      setLobbyDetails: (lobbyDetails) => set({ lobbyDetails }),
+
     }),
     {
       name: 'memory-game-storage', // name of the item in the storage (must be unique)
@@ -82,8 +105,13 @@ export const useStore = create()(
             'showSettingsModal',
             'showInfoModal',
             'showCreditsModal',
+            '_hasHydrated',
+            'lobbyDetails'
           ].includes(key))
         ),
+      onRehydrateStorage: () => (state) => {
+        state.setHasHydrated(true)
+      },
     },
   ),
 )
