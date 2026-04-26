@@ -13,6 +13,7 @@ import { useStore } from "@/hooks/useStore";
 
 import useFullscreen from '@articles-media/articles-dev-box/useFullscreen';
 import DebugPanel from "./DebugPanel";
+import GameDetailsPanel from "./GameDetailsPanel";
 
 function LeftPanelContent(props) {
 
@@ -32,8 +33,9 @@ function LeftPanelContent(props) {
 
     const cameraMode = useGameStore(state => state.cameraMode)
     const setCameraMode = useGameStore(state => state.setCameraMode)
-    const debug = useGameStore(state => state.debug)
-    const setDebug = useGameStore(state => state.setDebug)
+    
+    const debug = useStore(state => state.debug)
+    const setDebug = useStore(state => state.setDebug)
 
     const darkMode = useStore(state => state.darkMode);
     const toggleDarkMode = useStore(state => state.toggleDarkMode);
@@ -211,6 +213,8 @@ function LeftPanelContent(props) {
                 </div>
 
             </div>
+
+            <GameDetailsPanel />
 
             {debug &&
                 <DebugPanel />

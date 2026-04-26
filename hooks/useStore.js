@@ -93,6 +93,25 @@ export const useStore = create()(
       },
       setLobbyDetails: (lobbyDetails) => set({ lobbyDetails }),
 
+      toontownMode: false,
+      toggleToontownMode: () => {
+        set((prev) => ({
+          toontownMode: !prev.toontownMode
+        }))
+      },
+      setToontownMode: (newValue) => {
+        set((prev) => ({
+          toontownMode: newValue
+        }))
+      },
+
+      showGameOverModal: false,
+      setShowGameOverModal: (newValue) => {
+        set((prev) => ({
+          showGameOverModal: newValue
+        }))
+      },
+
     }),
     {
       name: 'memory-game-storage', // name of the item in the storage (must be unique)
@@ -105,6 +124,7 @@ export const useStore = create()(
             'showSettingsModal',
             'showInfoModal',
             'showCreditsModal',
+            'showGameOverModal',
             '_hasHydrated',
             'lobbyDetails'
           ].includes(key))

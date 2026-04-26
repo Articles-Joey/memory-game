@@ -11,6 +11,9 @@ import Player from "./Player";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useGameStore } from "@/hooks/useGameStore";
 import { cloneDeep } from "lodash";
+import { useStore } from "@/hooks/useStore";
+import { useSearchParams } from "next/navigation";
+import { useSocketStore } from "@/hooks/useSocketStore";
 
 function CardsBase() {
 
@@ -100,6 +103,10 @@ export const Cards = memo(CardsBase);
 
 function Card({ args, position, name }) {
 
+    const searchParams = useSearchParams()
+    const params = Object.fromEntries(searchParams.entries());
+    const { server } = params
+
     const {
         matchPairs,
         setMatchPairs,
@@ -109,6 +116,12 @@ function Card({ args, position, name }) {
         setMatchPairs: state.setMatchPairs,
         addFlipCount: state.addFlipCount
     }));
+
+    const socket = useSocketStore(state => state.socket)
+
+    const toontownMode = useStore(state => state.toontownMode)
+
+    const textColor = toontownMode ? "white" : "black"
 
     const [ref, api] = useBox(() => (
         {
@@ -164,10 +177,17 @@ function Card({ args, position, name }) {
         console.log("Flip called")
 
         if (
-            occupied 
-            && 
+            occupied
+            &&
             !matchValueLookup?.matched
         ) {
+
+            if (server) {
+                socket.emit('game:memory-game:flip', {
+                    name: name,
+                    server: server
+                })
+            }
 
             addFlipCount()
 
@@ -250,32 +270,55 @@ function Card({ args, position, name }) {
                         ]}
                     >
 
-                        <Image
+                        {toontownMode ?
+                            <Image
+                                url={`img/toontown-logo.svg`}
+                                scale={[6, 3, 1]}
+                                rotation={[-Math.PI / 2, 0, 0]}
+                                position={[0, 0.3, 0]}
+                                transparent={true}
+                            />
+                            :
+                            <Image
+                                url={`${process.env.NEXT_PUBLIC_CDN}branding/logo.svg`}
+                                scale={3}
+                                rotation={[-Math.PI / 2, 0, 0]}
+                                position={[0, 0.3, 0]}
+                                transparent={true}
+                            />
+                        }
+
+                        {/* <Image
                             url={`${process.env.NEXT_PUBLIC_CDN}branding/logo.svg`}
                             scale={3}
                             rotation={[-Math.PI / 2, 0, 0]}
                             position={[0, 0.3, 0]}
                             transparent={true}
-                        />
-                        <Text
-                            color="black"
-                            rotation={[-Math.PI / 2, 0, 0]}
-                            position={[0, 0.3, -2.25]}
-                            scale={0.6}
-                        >
-                            Articles Media
-                        </Text>
-                        <Text
-                            color="black"
-                            rotation={[-Math.PI / 2, 0, 0]}
-                            position={[0, 0.3, 2.25]}
-                            scale={0.6}
-                        >
-                            Memory Match
-                        </Text>
+                        /> */}
+
+                        {!toontownMode &&
+                            <>
+                                <Text
+                                    color={textColor}
+                                    rotation={[-Math.PI / 2, 0, 0]}
+                                    position={[0, 0.3, -2.25]}
+                                    scale={0.6}
+                                >
+                                    Articles Media
+                                </Text>
+                                <Text
+                                    color={textColor}
+                                    rotation={[-Math.PI / 2, 0, 0]}
+                                    position={[0, 0.3, 2.25]}
+                                    scale={0.6}
+                                >
+                                    Memory Match
+                                </Text>
+                            </>
+                        }
 
                         <Text
-                            color="black"
+                            color={textColor}
                             position={[0, -0.3, -1]}
                             rotation={[-Math.PI / 2, 0, 0]}
                             scale={[-1, 1, 1]}
@@ -284,7 +327,7 @@ function Card({ args, position, name }) {
                         </Text>
 
                         <Text
-                            color="black"
+                            color={textColor}
                             position={[0, -0.3, 1]}
                             rotation={[-Math.PI / 2, 0, 0]}
                             scale={[-1, 1, 1]}
@@ -294,9 +337,15 @@ function Card({ args, position, name }) {
 
                         <boxGeometry args={args} />
 
-                        <meshStandardMaterial
-                            color="#f9edcd"
-                        />
+                        {toontownMode ? (
+                            <meshStandardMaterial
+                                color="#1d5579"
+                            />
+                        ) : (
+                            <meshStandardMaterial
+                                color="#f9edcd"
+                            />
+                        )}
 
                     </mesh>
 

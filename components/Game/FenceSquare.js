@@ -31,7 +31,7 @@ export default function FenceSquare({ size = 60 }) {
     }, [size, count, offset, fenceWidth]);
 
     return (
-        <group position={[4, 0, 0]}>
+        <group position={[4, 0.5, 0]}>
             {fences.map((fence, i) => (
                 <ModelKennyNLNatureFencePlanksDouble
                     key={i}

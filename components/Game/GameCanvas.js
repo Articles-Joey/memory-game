@@ -17,6 +17,7 @@ import { useGameStore } from "@/hooks/useGameStore";
 import { useStore } from "@/hooks/useStore";
 import FenceSquare from "./FenceSquare";
 import GrassArea from "./GrassArea";
+import SocketPlayers from "./SocketPlayers";
 
 const GrassPlane = () => {
     const graphicsQuality = useStore(state => state.graphicsQuality)
@@ -52,7 +53,7 @@ const GrassPlane = () => {
 
     return (
         <>
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.25, 0]}>
                 <planeGeometry attach="geometry" args={[width, height]} />
                 <meshStandardMaterial attach="material" map={colorMap} normalMap={normalMap} />
             </mesh>
@@ -73,6 +74,8 @@ function GameCanvas(props) {
     let gameContent = (
         <>
             <Player />
+
+            <SocketPlayers />
 
             <Cards />
 
@@ -99,13 +102,15 @@ function GameCanvas(props) {
             {process.env.NODE_ENV === 'development' &&
                 <>
                     <axesHelper args={[5]} />
-                    <Stats />
+                    <Stats className="stats-overlay" />
                 </>
             }
 
             <OrbitControls
             // autoRotate={gameState?.status == 'In Lobby'}
             />
+
+            {/* <ControlsHandler /> */}
 
             <Sky
                 sunPosition={darkMode ?
@@ -133,70 +138,9 @@ function GameCanvas(props) {
 
             <GrassPlane />
 
-            {/* Trees */}
-            {/* <group>
-                <group
-                    position={[-45, 0, -30]}
-                >
-                    {[...Array(10)].map((item, item_i) => {
-                        return (
-                            <Tree
-                                key={item_i}
-                                position={[(item_i * 10), 0, 0]}
-                            />
-                        )
-                    })}
-                </group>
-
-                <group
-                    position={[-45, 0, 30]}
-                >
-                    {[...Array(10)].map((item, item_i) => {
-                        return (
-                            <Tree
-                                key={item_i}
-                                position={[(item_i * 10), 0, 0]}
-                            />
-                        )
-                    })}
-                </group>
-            </group> */}
-
             <TreeArea />
             <FenceSquare />
             <GrassArea />
-
-            {/* Fence */}
-            {/* <group>
-                <group
-                    position={[-43, 0, -30]}
-                >
-                    {[...Array(10)].map((item, item_i) => {
-                        return (
-                            <ModelKennyNLNatureFencePlanksDouble
-                                key={item_i}
-                                position={[0, 0, (item_i * 6.5)]}
-                                rotation={[0, degToRad(90), 0]}
-                                scale={7}
-                            />
-                        )
-                    })}
-                </group>
-                <group
-                    position={[50, 0, -30]}
-                >
-                    {[...Array(10)].map((item, item_i) => {
-                        return (
-                            <ModelKennyNLNatureFencePlanksDouble
-                                key={item_i}
-                                position={[0, 0, (item_i * 6.5)]}
-                                rotation={[0, degToRad(90), 0]}
-                                scale={7}
-                            />
-                        )
-                    })}
-                </group>
-            </group> */}
 
             <Physics>
 

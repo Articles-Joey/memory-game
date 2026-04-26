@@ -5,9 +5,17 @@
 @use "./pages/game" as *;
 
 button {
-    font-size: 0.75rem!important;
+    font-size: 0.75rem !important;
 }
 
 i {
     margin-right: 0.2rem;
+}
+
+.stats-overlay {
+    position: fixed;
+    top: 0;
+    right: 0 !important;
+    left: initial !important;
+    z-index: 4;
 }

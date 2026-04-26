@@ -18,6 +18,7 @@ const games = []
 
 import IsDev from "@/components/UI/IsDev";
 import ArticlesButton from "./Button";
+import { useStore } from "@/hooks/useStore";
 
 const registeredGames = [
     'Four Frogs',
@@ -40,6 +41,8 @@ export default function GameInfoModal({
     setShow,
     credits
 }) {
+
+    const darkMode = useStore(state => state.darkMode)
 
     const [showModal, setShowModal] = useState(true)
 
@@ -94,6 +97,14 @@ export default function GameInfoModal({
                 </Modal.Header>
 
                 <Modal.Body className="flex-column p-0">
+
+                    <div className="ratio ratio-16x9">
+                        {darkMode ?
+                            <img src={"img/dark-preview.webp"}></img>
+                            :
+                            <img src={"img/preview.webp"}></img>
+                        }
+                    </div>
 
                     <div className="p-3">
 

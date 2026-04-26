@@ -10,11 +10,13 @@ import { Model as SpacesuitModel } from "@/components/Models/Spacesuit";
 
 import { useControllerStore } from '@/hooks/useControllerStore';
 import { useControlsStore, useGameStore } from "@/hooks/useGameStore";
+import { useSocketStore } from "@/hooks/useSocketStore";
 
 // import ClownfishModel from "./PlayerModels/Clownfish"
 // import BoneFishModel from "./PlayerModels/BoneFish"
 import { useLocalStorageNew } from "@/hooks/useLocalStorageNew"
 import { degToRad } from "three/src/math/MathUtils.js"
+import { useSearchParams } from "next/navigation"
 
 const JUMP_FORCE = 0;
 const SPEED = 12;
@@ -28,6 +30,10 @@ function myToFixed(i, digits) {
 }
 
 function Player(props) {
+
+    const searchParams = useSearchParams()
+    const params = Object.fromEntries(searchParams.entries());
+    const { server } = params
 
     // const { setPlayerData, teleportPlayer, setTeleportPlayer } = props;
 
@@ -44,6 +50,8 @@ function Player(props) {
     const {
         touchControls, setTouchControls
     } = useControlsStore()
+
+    const { socket } = useSocketStore()
 
     const { controllerState, setControllerState } = useControllerStore()
 
@@ -193,6 +201,18 @@ function Player(props) {
         if (JSON.stringify(lastLocation) !== JSON.stringify(newLocation)) {
             // console.log(newLocation, lastLocation)
             setPlayerLocation(newLocation)
+
+            if (socket) {
+                socket.emit('game:memory-game:move', {
+                    server: server,
+                    x: newLocation.x,
+                    // y: newLocation.y,
+                    z: newLocation.z,
+                    action: action,
+                    rotation: [0, degToRad(lastMove), 0]
+                })
+            }
+
             lastLocation = newLocation
         }
         // else {
@@ -223,7 +243,17 @@ function Player(props) {
             .multiplyScalar(SPEED * (shift ? 2 : 1))
         // .applyEuler(camera.rotation)
 
-        api.velocity.set(direction.x, 0, direction.z)
+        // Boundary constraints: -40 to 40 for X and Z
+        const BOUNDARY = 40;
+        let nextVelX = direction.x;
+        let nextVelZ = direction.z;
+
+        if (pos.current[0] <= -BOUNDARY && nextVelX < 0) nextVelX = 0;
+        if (pos.current[0] >= BOUNDARY && nextVelX > 0) nextVelX = 0;
+        if (pos.current[2] <= -BOUNDARY && nextVelZ < 0) nextVelZ = 0;
+        if (pos.current[2] >= BOUNDARY && nextVelZ > 0) nextVelZ = 0;
+
+        api.velocity.set(nextVelX, 0, nextVelZ)
 
         if ((jump || touchControls.jump) && Math.abs(vel.current[1]) < 0.05) {
 
@@ -257,7 +287,7 @@ function Player(props) {
             >
                 <SpacesuitModel
                     scale={3}
-                    position={[0, -1, 0]}
+                    position={[0, -0.2, 0]}
                     action={action}
                     rotation={[0, degToRad(lastMove), 0]}
                 />

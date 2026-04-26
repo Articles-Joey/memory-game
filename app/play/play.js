@@ -42,6 +42,8 @@ export default function GamePage() {
     const { controllerState, setControllerState } = useControllerStore()
     const [showControllerState, setShowControllerState] = useState(false)
 
+    const nickname = useStore(state => state.nickname)
+
     // const [ cameraMode, setCameraMode ] = useState('Player')
 
     const [players, setPlayers] = useState([])
@@ -49,19 +51,20 @@ export default function GamePage() {
     useEffect(() => {
 
         if (server && socket.connected) {
-            socket.emit('join-room', `game:cannon-room-${server}`, {
+            const roomName = `game:${game_key}-room-${server}`;
+            socket.emit('join-room', roomName, {
                 game_id: server,
-                nickname: JSON.parse(localStorage.getItem('game:nickname')),
+                nickname: nickname,
                 client_version: '1',
 
             });
+
+            return function cleanup() {
+                socket.emit('leave-room', roomName)
+            };
         }
 
-        // return function cleanup() {
-        //     socket.emit('leave-room', 'game:glass-ceiling-landing')
-        // };
-
-    }, [server, socket.connected]);
+    }, [server, socket.connected, nickname]);
 
     const [showMenu, setShowMenu] = useState(false)
 
@@ -69,7 +72,7 @@ export default function GamePage() {
 
     const [sceneKey, setSceneKey] = useState(0);
 
-    const [gameState, setGameState] = useState(false)
+    // const [gameState, setGameState] = useState(false)
 
     // Function to handle scene reload
     const reloadScene = () => {

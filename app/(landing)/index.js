@@ -41,9 +41,11 @@ const assets_src = 'games/Cannon/'
 
 const game_key = 'memory-game'
 const game_name = 'Memory Game'
+const game_port = "3027"
 
 import GameScoreboard from '@articles-media/articles-dev-box/GameScoreboard';
 import Ad from '@articles-media/articles-dev-box/Ad';
+import SessionButton from '@articles-media/articles-dev-box/SessionButton';
 
 import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
 import useUserToken from '@articles-media/articles-dev-box/useUserToken';
@@ -51,6 +53,7 @@ import useUserToken from '@articles-media/articles-dev-box/useUserToken';
 import { GamepadKeyboard, PieMenu } from '@articles-media/articles-gamepad-helper';
 import { useStore } from '@/hooks/useStore';
 import { useSocketStore } from '@/hooks/useSocketStore';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 // import { set } from 'lodash';
 
 const ReturnToLauncherButton = dynamic(() =>
@@ -151,7 +154,7 @@ export default function LobbyPage() {
         isLoading: userTokenLoading,
         mutate: userTokenMutate
     } = useUserToken(
-        "3027"
+        game_port
     );
 
     const {
@@ -465,7 +468,12 @@ export default function LobbyPage() {
                                 Info
                             </ArticlesButton>
 
-                            <Link href={'https://github.com/Articles-Joey/memory-game'} className='w-50'>
+                            <a
+                                href={'https://github.com/Articles-Joey/memory-game'}
+                                className='w-50'
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
                                 <ArticlesButton
                                     className={`w-100`}
                                     small
@@ -476,7 +484,7 @@ export default function LobbyPage() {
                                     <i className="fab fa-github"></i>
                                     Github
                                 </ArticlesButton>
-                            </Link>
+                            </a>
 
                             <ArticlesButton
                                 className={`w-50`}
@@ -492,6 +500,10 @@ export default function LobbyPage() {
                         </div>
 
                     </div>
+
+                    <SessionButton
+                        port={game_port}
+                    />
 
                     <ReturnToLauncherButton />
 

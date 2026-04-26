@@ -14,6 +14,7 @@ import { useRouter, usePathname } from 'next/navigation';
 
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { useStore } from '@/hooks/useStore';
+import { useGameStore } from '@/hooks/useGameStore';
 
 const game_key = 'memory-game'
 const game_name = 'Memory Game'
@@ -151,6 +152,22 @@ export default function SocketLogicHandler(props) {
             }
         });
 
+        socket.on(`game-update`, function (msg) {
+            console.log(`game-update`, msg)
+            // const setPlayers = useIceSlideStore.getState().setPlayers
+            // setPlayers(msg.players)
+            // const setItems = useIceSlideStore.getState().setItems
+            // setItems(msg.items)
+            const setGameState = useGameStore.getState().setGameState
+            setGameState(msg)
+        });
+
+        socket.on(`game-over`, function (msg) {
+            console.log(`game-over`, msg)
+            const setShowGameOverModal = useStore.getState().setShowGameOverModal
+            setShowGameOverModal(msg)
+        });
+
         // router.events.on('routeChangeStart', handleRouteChange)
 
         return () => {
@@ -160,6 +177,8 @@ export default function SocketLogicHandler(props) {
             socket.off('roomsList');
             socket.off(`game:${game_key}-landing-details`);
             socket.off('userCount', userCount);
+            socket.off(`game:${game_key}:game-update`);
+            socket.off(`game-over`);
             // router.events.off('routeChangeStart', handleRouteChange)
         };
 
