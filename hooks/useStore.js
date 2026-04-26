@@ -93,6 +93,10 @@ export const useStore = create()(
       },
       setLobbyDetails: (lobbyDetails) => set({ lobbyDetails }),
 
+      landingAnimation: true,
+      setLandingAnimation: (value) => set({ landingAnimation: value }),
+      toggleLandingAnimation: () => set({ landingAnimation: !get().landingAnimation }),
+
       toontownMode: false,
       toggleToontownMode: () => {
         set((prev) => ({
