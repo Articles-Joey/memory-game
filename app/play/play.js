@@ -12,7 +12,7 @@ import Script from 'next/script'
 
 import ArticlesButton from '@/components/UI/Button';
 
-import useFullscreen from '@/hooks/useFullScreen';
+import useFullscreen from '@articles-media/articles-dev-box/useFullscreen';
 import { useControllerStore } from '@/hooks/useControllerStore';
 
 import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';
@@ -44,9 +44,15 @@ export default function GamePage() {
 
     const nickname = useStore(state => state.nickname)
 
+    const showMenu = useStore(state => state.showMenu)
+    const setShowMenu = useStore(state => state.setShowMenu)
+
+    const sceneKey = useStore(state => state.sceneKey)
+    const setSceneKey = useStore(state => state.setSceneKey)
+
     // const [ cameraMode, setCameraMode ] = useState('Player')
 
-    const [players, setPlayers] = useState([])
+    // const [players, setPlayers] = useState([])
 
     useEffect(() => {
 
@@ -66,11 +72,11 @@ export default function GamePage() {
 
     }, [server, socket.connected, nickname]);
 
-    const [showMenu, setShowMenu] = useState(false)
+    // const [showMenu, setShowMenu] = useState(false)
 
     const [touchControlsEnabled, setTouchControlsEnabled] = useLocalStorageNew("game:touchControlsEnabled", false)
 
-    const [sceneKey, setSceneKey] = useState(0);
+    // const [sceneKey, setSceneKey] = useState(0);
 
     // const [gameState, setGameState] = useState(false)
 
@@ -85,7 +91,7 @@ export default function GamePage() {
 
     let panelProps = {
         server,
-        players,
+        // players,
         touchControlsEnabled,
         setTouchControlsEnabled,
         reloadScene,

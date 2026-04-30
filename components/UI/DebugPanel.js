@@ -1,6 +1,7 @@
 import { useGameStore } from "@/hooks/useGameStore"
 import { useMemo } from "react"
 import ArticlesButton from "./Button"
+import { useStore } from "@/hooks/useStore"
 
 export default function DebugPanel() {
 
@@ -8,6 +9,7 @@ export default function DebugPanel() {
     const timer = useGameStore(state => state.timer)
     const flipCount = useGameStore(state => state.flipCount)
     const generateMatchPairs = useGameStore(state => state.generateMatchPairs)
+    const reloadScene = useStore(state => state.reloadScene)
 
     const flippedCards = useMemo(() => {
         let cards = matchPairs.filter(obj => obj.flipped)
@@ -44,6 +46,16 @@ export default function DebugPanel() {
                 </div>
 
                 <div className="small border p-2">
+
+                    {/* TODO - Move to DebugPanel */}
+                    <ArticlesButton
+                        size="sm"
+                        className="w-50"
+                        onClick={reloadScene}
+                    >
+                        <i className="fad fa-redo"></i>
+                        Reload Game
+                    </ArticlesButton>
 
                     <ArticlesButton
                         small

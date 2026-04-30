@@ -72,15 +72,15 @@ export function useGameControls({ server } = {}) {
             hitPowerRef.current = next;
             emitAim.current();
         },
-        launch() {
-            const socket = useSocketStore.getState().socket;
-            socket?.emit('game:ice-slide:move', {
-                hitRotation: hitRotationRef.current,
-                hitPower: hitPowerRef.current,
-                server,
-            });
-            setLaunchPlayer(true);
-        },
+        // launch() {
+        //     const socket = useSocketStore.getState().socket;
+        //     socket?.emit('game:ice-slide:move', {
+        //         hitRotation: hitRotationRef.current,
+        //         hitPower: hitPowerRef.current,
+        //         server,
+        //     });
+        //     setLaunchPlayer(true);
+        // },
     });
 
     return actions.current;

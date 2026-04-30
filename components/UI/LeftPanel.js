@@ -90,15 +90,6 @@ function LeftPanelContent(props) {
                         Sidebar
                     </ArticlesButton>
 
-                    <ArticlesButton
-                        size="sm"
-                        className="w-50"
-                        onClick={reloadScene}
-                    >
-                        <i className="fad fa-redo"></i>
-                        Reload Game
-                    </ArticlesButton>
-
                     <div className='w-50 d-flex'>
                         <ArticlesButton
                             // ref={el => elementsRef.current[4] = el}

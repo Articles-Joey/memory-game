@@ -45,7 +45,6 @@ const game_port = "3027"
 
 import GameScoreboard from '@articles-media/articles-dev-box/GameScoreboard';
 import Ad from '@articles-media/articles-dev-box/Ad';
-import SessionButton from '@articles-media/articles-dev-box/SessionButton';
 
 import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
 import useUserToken from '@articles-media/articles-dev-box/useUserToken';
@@ -55,6 +54,11 @@ import { useStore } from '@/hooks/useStore';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 // import { set } from 'lodash';
+
+const SessionButton = dynamic(() =>
+    import('@articles-media/articles-dev-box/SessionButton'),
+    { ssr: false }
+);
 
 const ReturnToLauncherButton = dynamic(() =>
     import('@articles-media/articles-dev-box/ReturnToLauncherButton'),

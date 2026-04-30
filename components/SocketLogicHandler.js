@@ -177,7 +177,7 @@ export default function SocketLogicHandler(props) {
             socket.off('roomsList');
             socket.off(`game:${game_key}-landing-details`);
             socket.off('userCount', userCount);
-            socket.off(`game:${game_key}:game-update`);
+            socket.off(`game-update`);
             socket.off(`game-over`);
             // router.events.off('routeChangeStart', handleRouteChange)
         };
