@@ -20,6 +20,9 @@ import LeftPanelContent from '@/components/UI/LeftPanel';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { useGameStore } from '@/hooks/useGameStore';
 import { useStore } from '@/hooks/useStore';
+import classNames from 'classnames';
+
+import GameMenu from '@articles-media/articles-dev-box/GameMenu';
 
 const GameCanvas = dynamic(() => import('@/components/Game/GameCanvas'), {
     ssr: false,
@@ -117,6 +120,7 @@ export default function GamePage() {
         generateMatchPairs: state.generateMatchPairs
     }));
 
+    const menuOpen = useStore(state => state.showMenu)
     const sidebar = useStore(state => state.sidebar);
     const toggleSidebar = useStore(state => state.toggleSidebar);
 
@@ -140,60 +144,27 @@ export default function GamePage() {
     return (
 
         <div
-            className={`${game_key}-game-page ${isFullscreen && 'fullscreen'} ${sidebar ? 'sidebar-enabled' : ''} ${showMenu ? 'show-menu' : ''}`}
-            id={`${game_key}-game-page`}
+            className={classNames(
+                `${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`,
+                {
+                    'menu-open': menuOpen,
+                    'fullscreen': useFullscreen().isFullscreen,
+                    'show-sidebar': sidebar,
+                }
+            )}
+            id={`${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`}
         >
-
-            <div className="menu-bar card card-articles p-1 ">
-
-                <div className='flex-header justify-content-center align-items-center'>
-
-                    <ArticlesButton
-                        small
-                        active={showMenu}
-                        onClick={() => {
-                            setShowMenu(prev => !prev)
-                        }}
-                    >
-                        <i className="fad fa-bars"></i>
-                        <span>Menu</span>
-                    </ArticlesButton>
-
-                    <div>
-                        {/* Y: {(playerLocation?.y || 0)} */}
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div className={`mobile-menu ${(showMenu || (!sidebar && showMenu)) && 'show'}`}>
-                <LeftPanelContent
-                    {...panelProps}
-                />
-            </div>
-
-            {/* <TouchControls
-                touchControlsEnabled={touchControlsEnabled}
-            /> */}
-
-            <div className='panel-left card rounded-0'>
-
-                <LeftPanelContent
-                    {...panelProps}
-                />
-
-            </div>
-
-            {/* <div className='game-info'>
-                <div className="card card-articles card-sm">
-                    <div className="card-body">
-                        <pre> 
-                            {JSON.stringify(playerData, undefined, 2)}
-                        </pre>
-                    </div>
-                </div>
-            </div> */}
+            <GameMenu
+                useStore={useStore}
+                LeftPanelContent={LeftPanelContent}
+                menuBarConfig={{
+                    style: "Corner Button",
+                    menuBarButtonPosition: "Left"
+                }}
+                sidebarConfig={{
+                    style: "Static Panel",
+                }}
+            />
 
             <div className='canvas-wrap'>
 

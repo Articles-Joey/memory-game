@@ -15,6 +15,8 @@ import useFullscreen from '@articles-media/articles-dev-box/useFullscreen';
 import DebugPanel from "./DebugPanel";
 import GameDetailsPanel from "./GameDetailsPanel";
 
+import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+
 function LeftPanelContent(props) {
 
     const {
@@ -33,7 +35,7 @@ function LeftPanelContent(props) {
 
     const cameraMode = useGameStore(state => state.cameraMode)
     const setCameraMode = useGameStore(state => state.setCameraMode)
-    
+
     const debug = useStore(state => state.debug)
     const setDebug = useStore(state => state.setDebug)
 
@@ -50,72 +52,10 @@ function LeftPanelContent(props) {
 
                 <div className="card-body d-flex flex-wrap">
 
-                    <Link
-                        href={"/"}
-                        className="w-50"
-                    >
-                        <ArticlesButton
-                            className='w-100'
-                            small
-                        >
-                            <i className="fad fa-arrow-alt-square-left"></i>
-                            <span>Leave Game</span>
-                        </ArticlesButton>
-                    </Link>
-
-                    <ArticlesButton
-                        small
-                        className="w-50"
-                        active={isFullscreen}
-                        onClick={() => {
-                            if (isFullscreen) {
-                                exitFullscreen()
-                            } else {
-                                requestFullscreen()
-                            }
-                        }}
-                    >
-                        {isFullscreen && <span>Exit </span>}
-                        {!isFullscreen && <span><i className='fad fa-expand'></i></span>}
-                        <span>Fullscreen</span>
-                    </ArticlesButton>
-
-                    <ArticlesButton
-                        size="sm"
-                        className="w-50"
-                        active={sidebar}
-                        onClick={() => toggleSidebar()}
-                    >
-                        <i className="fad fa-bars"></i>
-                        Sidebar
-                    </ArticlesButton>
-
-                    <div className='w-50 d-flex'>
-                        <ArticlesButton
-                            // ref={el => elementsRef.current[4] = el}
-                            // active={activeIndex === 3}
-                            className={`w-100 flex-grow-1`}
-                            small
-                            onClick={() => {
-                                setShowSettingsModal(true)
-                            }}
-                        >
-                            <i className="fad fa-cog"></i>
-                            Settings
-                        </ArticlesButton>
-                        <ArticlesButton
-                            // ref={el => elementsRef.current[4] = el}
-                            // active={activeIndex === 3}
-                            className={`flex-grow-0`}
-                            small
-                            onClick={() => {
-                                toggleDarkMode()
-                            }}
-                        >
-                            {darkMode ? <i className="fad fa-moon"></i> : <i className="fad fa-sun"></i>}
-                            {/* <i className="fad fa-sun"></i> */}
-                        </ArticlesButton>
-                    </div>
+                    <GameMenuPrimaryButtonGroup
+                        useStore={useStore}
+                        type="GameMenu"
+                    />
 
                     <div className="w-50">
                         <DropdownButton

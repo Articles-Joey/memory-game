@@ -8,9 +8,7 @@ import typicalZustandStoreStateSlice from '@articles-media/articles-dev-box/typi
 export const useStore = create()(
   persist(
     (set, get) => ({
-
       ...typicalZustandStoreStateSlice(set, get, generateRandomNickname),
-
     }),
     {
       name: 'game-storage',

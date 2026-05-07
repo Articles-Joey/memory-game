@@ -7,6 +7,11 @@ const useTouchControlsStore = create()(
         (set, get) => ({
 
             enabled: false,
+            toggleEnabled: () => {
+                set(() => ({
+                    enabled: !get().enabled
+                }))
+            },
             setEnabled: (newValue) => {
                 set((prev) => ({
                     enabled: newValue
@@ -16,7 +21,9 @@ const useTouchControlsStore = create()(
             touchControls: {
                 jump: false,
                 left: false,
-                right: false
+                right: false,
+                up: false,
+                down: false,
             },
             setTouchControls: (newValue) => {
                 set((prev) => ({

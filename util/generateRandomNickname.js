@@ -14,8 +14,6 @@ const mysteryNouns = [
     'Logic', 'Brain', 'Thinker', 'Strategist', 'Advisor', 'Consultant'
 ];
 
-
-
 /**
  * Generates a random mystery/problem-solver themed nickname.
  * @returns {string} A random nickname like "CleverDetective42" or "SneakyPuzzle7".
