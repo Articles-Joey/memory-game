@@ -63,12 +63,7 @@ const GrassPlane = () => {
 
 function GameCanvas(props) {
 
-    const {
-        debug,
-    } = useGameStore(state => ({
-        debug: state.debug,
-    }));
-
+    const debug = useStore(state => state.debug);
     const darkMode = useStore(state => state.darkMode)
 
     let gameContent = (

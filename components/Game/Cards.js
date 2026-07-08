@@ -272,7 +272,7 @@ function Card({ args, position, name }) {
 
                         {toontownMode ?
                             <Image
-                                url={`img/toontown-logo.svg`}
+                                url={`img/toontown/toontown-logo.svg`}
                                 scale={[6, 3, 1]}
                                 rotation={[-Math.PI / 2, 0, 0]}
                                 position={[0, 0.3, 0]}
@@ -280,7 +280,7 @@ function Card({ args, position, name }) {
                             />
                             :
                             <Image
-                                url={`${process.env.NEXT_PUBLIC_CDN}branding/logo.svg`}
+                                url={`img/icon.png`}
                                 scale={3}
                                 rotation={[-Math.PI / 2, 0, 0]}
                                 position={[0, 0.3, 0]}

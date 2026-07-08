@@ -6,7 +6,9 @@ Files: models\fence_planksDouble.glb [11.16KB] > E:\Downloads\kenney_nature-kit\
 
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
-const link = `${process.env.NEXT_PUBLIC_CDN}games/Assets/KennyNL/Nature/Models/fence_planksDouble-transformed.glb`;
+
+// const link = `${process.env.NEXT_PUBLIC_CDN}games/Assets/KennyNL/Nature/Models/fence_planksDouble-transformed.glb`;
+const link = `models/FencePlanksDouble-transformed.glb`;
 
 export function ModelKennyNLNatureFencePlanksDouble(props) {
   const { nodes, materials } = useGLTF(link)

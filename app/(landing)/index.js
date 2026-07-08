@@ -81,7 +81,7 @@ export default function LobbyPage() {
 
     return (
 
-        <div className="memory-game-landing-page">
+        <div className={`landing-page`}>
 
             <Suspense>
                 <GamepadKeyboard
@@ -178,6 +178,7 @@ export default function LobbyPage() {
                             src={"/img/icon.png"}
                             alt="Logo"
                             // fill
+                            loading="eager"
                             width={200}
                             height={200}
                             style={{

@@ -15,7 +15,7 @@ import "@articles-media/articles-dev-box/dist/style.css";
 import "@articles-media/articles-gamepad-helper/dist/articles-gamepad-helper.css";
 
 import { Suspense } from 'react';
-import GlobalClientModals from '@/components/UI/GlobalClientModals';
+// import GlobalClientModals from '@/components/UI/GlobalClientModals';
 // import DarkModeHandler from '@/components/UI/DarkModeHandler';
 import LayoutClient from './layout-client';
 import SocketLogicHandler from '@/components/SocketLogicHandler';
@@ -51,12 +51,12 @@ export default function RootLayout({ children }) {
       <body
       // className={`${geistSans.variable} ${geistMono.variable}`}
       >
-
-        <SocketLogicHandler />
+        
         <LayoutClient />
 
         <Suspense>
-          <GlobalClientModals />
+          <SocketLogicHandler />
+          {/* <GlobalClientModals /> */}
         </Suspense>
 
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>

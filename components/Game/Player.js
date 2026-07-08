@@ -299,7 +299,13 @@ function Player(props) {
                 // position={position}
                 material={material}
             >
-                {!debug && <sphereGeometry args={[1, 32, 32]} />}
+                {/* {!debug &&
+                    <sphereGeometry 
+                        args={[1, 32, 32]} 
+                        opacity={0}
+                        transparent
+                    />
+                } */}
 
                 {/* {character.model == 'Clownfish' && <ClownfishModel rotation={[0, Math.PI / 1, 0]} />}
                 {character.model == 'Bone Fish' && <BoneFishModel rotation={[0, -Math.PI / 2, 0]} />} */}
