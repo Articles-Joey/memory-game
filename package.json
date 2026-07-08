@@ -17,7 +17,7 @@
     "@articles-media/articles-gamepad-helper": "^0.0.13",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.10",
+    "@mui/icons-material": "^9.2.0",
     "@mui/material": "^9.2.0",
     "@mui/material-nextjs": "^9.1.1",
     "@react-three/cannon": "^6.6.0",
@@ -29,9 +29,10 @@
     "lodash": "^4.17.21",
     "next": "^16.3.0-preview.5",
     "nipplejs": "^0.10.2",
+    "react": "^19.2.7",
     "react-bootstrap": "^2.10.10",
     "react-countdown": "^2.3.6",
-    "react-dom": "^19.2.3",
+    "react-dom": "^19.2.7",
     "react-hotkeys-hook": "^5.1.0",
     "socket.io-client": "^4.8.1",
     "swr": "^2.4.2",
@@ -44,5 +45,10 @@
     "eslint": "^10",
     "eslint-config-next": "^16.2.10",
     "sass": "^1.101.0"
+  },
+   "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom",
+    "next": "$next"
   }
 }
