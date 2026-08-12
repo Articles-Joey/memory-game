@@ -1,5 +1,17 @@
 import { useCallback, useEffect, useState } from "react"
 
+function getMoveAngle(moveForward, moveBackward, moveRight, moveLeft) {
+	if (moveForward && moveRight) return 135
+	if (moveForward && moveLeft) return 225
+	if (moveBackward && moveRight) return 45
+	if (moveBackward && moveLeft) return -45
+	if (moveRight) return 90
+	if (moveLeft) return -90
+	if (moveForward) return 180
+	if (moveBackward) return 0
+	return null
+}
+
 function actionByKey(key) {
 	const keyActionMap = {
 		KeyW: 'moveForward',
@@ -25,6 +37,7 @@ export const useKeyboard = () => {
 		moveBackward: false,
 		moveLeft: false,
 		moveRight: false,
+		lastMove: 0,
 		jump: false,
         shift: false,
         crouch: false,
@@ -41,10 +54,13 @@ export const useKeyboard = () => {
         console.log("test")
 		if (action) {
 			setActions((prev) => {
-				return ({
+				const next = {
 					...prev,
 					[action]: true
-				})
+				}
+				const lastMove = getMoveAngle(next.moveForward, next.moveBackward, next.moveRight, next.moveLeft)
+
+				return lastMove === null ? next : { ...next, lastMove }
 			})
 		}
 	}, [])
@@ -54,10 +70,13 @@ export const useKeyboard = () => {
         console.log("test")
 		if (action) {
 			setActions((prev) => {
-				return ({
+				const next = {
 					...prev,
 					[action]: false
-				})
+				}
+				const lastMove = getMoveAngle(next.moveForward, next.moveBackward, next.moveRight, next.moveLeft)
+
+				return lastMove === null ? next : { ...next, lastMove }
 			})
 		}
 	}, [])

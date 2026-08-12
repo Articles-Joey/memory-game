@@ -59,7 +59,7 @@ export default function LobbyPage() {
             socket?.emit('leave-room', `game:${game_key}-landing`)
         };
 
-    }, [connected]);
+    }, [connected, socket]);
 
  const {
         data: userToken,

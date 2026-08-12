@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import { useIceSlideStore } from '@/hooks/useIceSlideStore';
 import { useSocketStore } from '@/hooks/useSocketStore';
 
@@ -9,7 +9,6 @@ import { useSocketStore } from '@/hooks/useSocketStore';
  */
 export function useGameControls({ server } = {}) {
 
-    const setLaunchPlayer = useIceSlideStore(state => state.setLaunchPlayer);
     const setHitRotation = useIceSlideStore(state => state.setHitRotation);
     const setHitPower = useIceSlideStore(state => state.setHitPower);
 
@@ -45,7 +44,7 @@ export function useGameControls({ server } = {}) {
         };
     }, [server]);
 
-    const actions = useRef({
+    const actions = useMemo(() => ({
         rotateRight() {
             const next = hitRotationRef.current >= 360 ? 0 : hitRotationRef.current + 1;
             setHitRotation(next);
@@ -81,9 +80,9 @@ export function useGameControls({ server } = {}) {
         //     });
         //     setLaunchPlayer(true);
         // },
-    });
+    }), [setHitPower, setHitRotation]);
 
-    return actions.current;
+    return actions;
 }
 
 /**
@@ -96,7 +95,10 @@ export function useGameControls({ server } = {}) {
 export function useHeldAction(action) {
     const rafRef = useRef(null);
     const actionRef = useRef(action);
-    actionRef.current = action;
+
+    useLayoutEffect(() => {
+        actionRef.current = action;
+    }, [action]);
 
     const stop = useCallback(() => {
         if (rafRef.current) {

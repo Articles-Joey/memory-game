@@ -59,7 +59,7 @@ function CardsBase() {
             }
         }
 
-    }, [matchPairs]);
+    }, [matchPairs, setMatchPairs]);
 
     return (
         <group position={[0, 0, 0]}>
@@ -162,10 +162,6 @@ function Card({ args, position, name }) {
         })
     )
 
-    useEffect(() => {
-        api.userData = { name: name || "Obstacle" };
-    }, [api, name]);
-
     const matchValueLookup = useMemo(() => {
 
         return matchPairs.find(obj => obj.flatLocation == name)
@@ -193,21 +189,21 @@ function Card({ args, position, name }) {
 
             console.log("name", name)
 
-            let matchPairsCopy = cloneDeep(matchPairs)
+            const matchPairsCopy = cloneDeep(matchPairs)
 
-            let flippedCardsCount = matchPairs.filter(obj => obj.flipped)?.length
+            const flippedCardsCount = matchPairs.filter(obj => obj.flipped)?.length
 
-            if (flippedCardsCount >= 2) {
-                matchPairsCopy = matchPairsCopy.map(obj => {
+            const matchPairsToFlip = flippedCardsCount >= 2
+                ? matchPairsCopy.map(obj => {
                     return {
                         ...obj,
                         flipped: false
                     }
 
                 })
-            }
+                : matchPairsCopy
 
-            matchPairsCopy = matchPairsCopy.map(obj => {
+            const nextMatchPairs = matchPairsToFlip.map(obj => {
 
                 if (obj.flatLocation == name) {
                     return {
@@ -220,9 +216,9 @@ function Card({ args, position, name }) {
 
             })
 
-            console.log("matchPairsCopy", matchPairsCopy)
+            console.log("matchPairsCopy", nextMatchPairs)
 
-            setMatchPairs(matchPairsCopy)
+            setMatchPairs(nextMatchPairs)
 
             // setFlipped(prev => !flipped)
 
@@ -277,6 +273,7 @@ function Card({ args, position, name }) {
                                 rotation={[-Math.PI / 2, 0, 0]}
                                 position={[0, 0.3, 0]}
                                 transparent={true}
+                                alt="Decorative logo"
                             />
                             :
                             <Image
@@ -285,6 +282,7 @@ function Card({ args, position, name }) {
                                 rotation={[-Math.PI / 2, 0, 0]}
                                 position={[0, 0.3, 0]}
                                 transparent={true}
+                                alt="Decorative logo"
                             />
                         }
 

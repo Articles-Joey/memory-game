@@ -16,9 +16,6 @@ import { useSocketStore } from "@/hooks/useSocketStore";
 import { useStore } from '@/hooks/useStore';
 import { useGameStore } from '@/hooks/useGameStore';
 
-const game_key = 'memory-game'
-const game_name = 'Memory Game'
-
 // SocketContextControl
 export default function SocketLogicHandler(props) {
 
@@ -65,14 +62,6 @@ export default function SocketLogicHandler(props) {
     //     setIsConnected(false);
     // }
 
-    function userCount(value) {
-        setTotalUsers(value)
-        // setSocketData(prevState => ({
-        //     ...prevState,
-        //     total_users: value
-        // }))
-    }
-
     // useEffect(() => {
 
     //     if (!initialConnectAttempt) {
@@ -85,6 +74,14 @@ export default function SocketLogicHandler(props) {
     // }, [initialConnectAttempt])
 
     useEffect(() => {
+
+        function userCount(value) {
+            setTotalUsers(value)
+            // setSocketData(prevState => ({
+            //     ...prevState,
+            //     total_users: value
+            // }))
+        }
 
         // Makes sure connect is only called once during reactStrictMode
         if (!initialized.current) {
@@ -141,11 +138,11 @@ export default function SocketLogicHandler(props) {
         console.log(`[📶 Socket] Page change emit`)
         socket.emit('activePage', pathname);
 
-        socket.on(`game:${game_key}-landing-details`, function (msg) {
+        socket.on(`game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`, function (msg) {
             const lobbyDetails = useStore.getState().lobbyDetails
             const setLobbyDetails = useStore.getState().setLobbyDetails
 
-            console.log(`game:${game_key}-landing-details`, msg)
+            console.log(`game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`, msg)
 
             if (JSON.stringify(msg) !== JSON.stringify(lobbyDetails)) {
                 setLobbyDetails(msg)
@@ -175,14 +172,14 @@ export default function SocketLogicHandler(props) {
             socket.off('disconnect');
             socket.off('force-page');
             socket.off('roomsList');
-            socket.off(`game:${game_key}-landing-details`);
+            socket.off(`game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`);
             socket.off('userCount', userCount);
             socket.off(`game-update`);
             socket.off(`game-over`);
             // router.events.off('routeChangeStart', handleRouteChange)
         };
 
-    }, [socket]);
+    }, [socket, pathname, connectSocket, setConnected, setTotalUsers, router]);
 
     useEffect(() => {
 
@@ -228,7 +225,7 @@ export default function SocketLogicHandler(props) {
         //     router.events.off('routeChangeStart', handleRouteChange);
         // };
 
-    }, [pathname, lastPage]);
+    }, [pathname, lastPage, socket]);
 
     // useEffect(() => {
 
@@ -288,6 +285,7 @@ export default function SocketLogicHandler(props) {
 
     }, [
         socket?.connected,
+        socket?.authenticated,
         // userReduxState._id
     ]);
 }

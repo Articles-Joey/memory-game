@@ -82,6 +82,7 @@ export default function GrassArea({ inner = 21, outer = 150, count = 16000 }) {
         uniforms: { time: { value: 0 } },
         side: DoubleSide,
     }), []);
+    const materialRef = useRef(material);
 
     const meshRef = useRef();
 
@@ -110,7 +111,7 @@ export default function GrassArea({ inner = 21, outer = 150, count = 16000 }) {
 
         if (graphicsQuality === 'Low') return
 
-        material.uniforms.time.value = clock.getElapsedTime();
+        materialRef.current.uniforms.time.value = clock.getElapsedTime();
 
     });
 

@@ -136,7 +136,7 @@ export default function GamePage() {
         // Cleanup interval on component unmount
         return () => clearInterval(gameTimer);
 
-    }, []);
+    }, [setTimer, addTimer, setFlipCount, generateMatchPairs]);
 
     return (
 

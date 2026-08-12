@@ -150,5 +150,5 @@ export const useLandingNavigation = (elementsRef) => {
         animationFrameId = requestAnimationFrame(loop);
 
         return () => cancelAnimationFrame(animationFrameId);
-    }, [elementsRef, showInfoModal, showSettingsModal, showCreditsModal, visible, nicknameKeyboard, lastClosedTime, setNicknameKeyboard]);
+    }, [elementsRef, showInfoModal, showSettingsModal, showCreditsModal, visible, nicknameKeyboard, lastClosedTime, setNicknameKeyboard, setStoreVisible]);
 };

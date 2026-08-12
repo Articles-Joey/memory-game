@@ -1,7 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { useSphere } from "@react-three/cannon"
 import { useGLTF, useAnimations, Text } from '@react-three/drei'
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef } from "react"
 import { Vector3 } from "three"
 import * as THREE from 'three';
 import { useKeyboard } from "@/hooks/useKeyboard"
@@ -60,6 +60,17 @@ function Player(props) {
         color: '#000000'
     })
 
+    const [ref, api] = useSphere(() => ({
+        mass: 1,
+        args: [0.2],
+        position: [0, 1.1, 0],
+        onCollide: (e) => {
+
+            console.log("Player collided with a card", e?.body)
+
+        }
+    }))
+
     // Attach event listeners when the component mounts
     useEffect(() => {
 
@@ -73,7 +84,7 @@ function Player(props) {
 
         }
 
-    }, [controllerState]);
+    }, [controllerState, api.position]);
 
     useEffect(() => {
 
@@ -85,54 +96,13 @@ function Player(props) {
 
         }
 
-    }, [teleport]);
+    }, [teleport, setTeleport, api.position]);
 
-    const { moveBackward, moveForward, moveRight, moveLeft, jump, shift: isShifting, crouch } = useKeyboard()
+    const { moveBackward, moveForward, moveRight, moveLeft, jump, shift: isShifting, crouch, lastMove } = useKeyboard()
 
-    const [action, setAction] = useState("Idle")
-    const [lastMove, setLastMove] = useState(0);
-    useEffect(() => {
-
-        if (moveLeft || moveRight || moveBackward || moveForward) {
-            setAction("Walk");
-        }
-
-        if (moveForward && moveRight) {
-            setLastMove(135); // Forward + Right
-        } else if (moveForward && moveLeft) {
-            setLastMove(225); // Forward + Left
-        } else if (moveBackward && moveRight) {
-            setLastMove(45); // Backward + Right
-        } else if (moveBackward && moveLeft) {
-            setLastMove(-45); // Backward + Left
-        } else if (moveRight) {
-            setLastMove(90); // Right
-        } else if (moveLeft) {
-            setLastMove(-90); // Left
-        } else if (moveForward) {
-            setLastMove(180); // Forward
-        } else if (moveBackward) {
-            setLastMove(0); // Backward
-        }
-
-        if (!moveLeft && !moveRight && !moveBackward && !moveForward) {
-            setAction("Idle");
-        }
-
-    }, [moveBackward, moveForward, moveRight, moveLeft])
+    const action = moveLeft || moveRight || moveBackward || moveForward ? "Walk" : "Idle"
 
     const { camera } = useThree()
-
-    const [ref, api] = useSphere(() => ({
-        mass: 1,
-        args: [0.2],
-        position: [0, 1.1, 0],
-        onCollide: (e) => {
-
-            console.log("Player collided with a card", e?.body)
-
-        }
-    }))
 
     const material = new THREE.MeshPhysicalMaterial({
         color: 'blue',
@@ -167,7 +137,7 @@ function Player(props) {
     useEffect(() => {
         console.log("Shift", isShifting)
         setShift(isShifting)
-    }, [isShifting])
+    }, [isShifting, setShift])
 
     useFrame(() => {
 

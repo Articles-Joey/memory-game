@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 import ArticlesButton from "@/components/UI/Button"
 import { useControlsStore, useGameStore } from "@/hooks/useGameStore"
@@ -37,7 +37,7 @@ function TouchControlsBase(props) {
         touchControlsEnabled,
     } = props;
 
-    const [nippleCreated, setNippleCreated] = useState(false)
+    const nippleCreated = useRef(false)
 
     const [nStart, setnStart] = useState(false)
     const [nDirection, setnDirection] = useState(false)
@@ -45,6 +45,8 @@ function TouchControlsBase(props) {
     const {
         touchControls, setTouchControls
     } = useControlsStore()
+
+    const startNippleRef = useRef(startNipple)
 
     function startNipple() {
 
@@ -61,7 +63,7 @@ function TouchControlsBase(props) {
         // var manager = nipplejs.create(options);
         var manager = require('nipplejs').create(options);
 
-        setNippleCreated(true)
+        nippleCreated.current = true
 
         let dragDistance
         let dragDirection
@@ -160,9 +162,9 @@ function TouchControlsBase(props) {
 
     useEffect(() => {
 
-        if (!nippleCreated) {
+        if (!nippleCreated.current) {
             console.log("Load nipple")
-            startNipple()
+            startNippleRef.current()
         }
 
     }, []);

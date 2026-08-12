@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 
 // import { useSelector, useDispatch } from 'react-redux'
 
 // import { togglePrivacyMode } from "@/redux/actions/siteActions";
-import ArticlesButton from '@/components/UI/Button';
 
 export default function IsDev({className, noOutline, children, inline}) {
 
@@ -11,10 +10,7 @@ export default function IsDev({className, noOutline, children, inline}) {
     // const userReduxState = useSelector((state) => state.auth.user_details)
     const userReduxState = false
 
-    const [ isMounted, setIsMounted ] = useState()
-    useEffect(() => {
-        setIsMounted(true)
-    }, [])
+    const isMounted = useSyncExternalStore(() => () => {}, () => true, () => false)
 
     // If you just want to wrap the sensitive info instead of conditional rendering on page with privacy_mode selector
     // I think this is better but you can do either way
@@ -24,26 +20,6 @@ export default function IsDev({className, noOutline, children, inline}) {
         )
     }
 
-    return
-
-    return (
-        <div className="d-flex align-items-center">
-
-            <div className="small badge bg-dark">
-                Privacy mode enabled
-            </div>
-
-            <ArticlesButton
-                className="ms-auto"
-                small
-                onClick={() => {
-                    // dispatch( togglePrivacyMode() )
-                }}
-            >
-                Disable
-            </ArticlesButton>
-
-        </div>
-    )
+    return null
 
 }

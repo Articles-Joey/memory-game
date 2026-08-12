@@ -28,7 +28,7 @@ export default function FenceSquare({ size = 60 }) {
             items.push({ position: [offset, yPos, pos], rotation: [0, degToRad(90), 0] });
         }
         return items;
-    }, [size, count, offset, fenceWidth]);
+    }, [count, offset, fenceWidth]);
 
     return (
         <group position={[4, 0.5, 0]}>
