@@ -21,17 +21,17 @@ function CardsBase() {
         matchPairs,
         setMatchPairs,
     } = useGameStore(state => ({
-        matchPairs: state.matchPairs,
+        matchPairs: state.gameState.matchPairs,
         setMatchPairs: state.setMatchPairs
     }));
 
     useEffect(() => {
 
-        let cards = matchPairs.filter(obj => obj.flipped)
+        let cards = matchPairs?.filter(obj => obj.flipped) || [];
         console.log("matchPairs matched check", cards)
 
         if (cards.length == 2) {
-            const allMatchValuesSame = cards.every(item => item.matchValue === cards[0].matchValue);
+            const allMatchValuesSame = cards.every(item => item?.matchValue === cards[0]?.matchValue);
             console.log(allMatchValuesSame)
 
             if (allMatchValuesSame) {
@@ -112,7 +112,7 @@ function Card({ args, position, name }) {
         setMatchPairs,
         addFlipCount
     } = useGameStore(state => ({
-        matchPairs: state.matchPairs,
+        matchPairs: state.gameState.matchPairs,
         setMatchPairs: state.setMatchPairs,
         addFlipCount: state.addFlipCount
     }));
@@ -164,7 +164,7 @@ function Card({ args, position, name }) {
 
     const matchValueLookup = useMemo(() => {
 
-        return matchPairs.find(obj => obj.flatLocation == name)
+        return matchPairs?.find(obj => obj.flatLocation == name)
 
     }, [matchPairs, name]);
 
@@ -330,7 +330,7 @@ function Card({ args, position, name }) {
                             rotation={[-Math.PI / 2, 0, 0]}
                             scale={[-1, 1, 1]}
                         >
-                            {matchValueLookup.matchValue}
+                            {matchValueLookup?.matchValue}
                         </Text>
 
                         <boxGeometry args={args} />

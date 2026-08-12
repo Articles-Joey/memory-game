@@ -104,15 +104,16 @@ export default function GamePage() {
         // exitFullscreen,
         // setShowMenu
     }
-    
+
     const {
         addTimer,
         setTimer,
         setFlipCount,
-        generateMatchPairs
+        generateMatchPairs,
     } = useGameStore(state => ({
         addTimer: state.addTimer,
         setTimer: state.setTimer,
+        flipCount: state.flipCount,
         setFlipCount: state.setFlipCount,
         generateMatchPairs: state.generateMatchPairs
     }));
@@ -121,22 +122,22 @@ export default function GamePage() {
     const sidebar = useStore(state => state.sidebar);
     const toggleSidebar = useStore(state => state.toggleSidebar);
 
-    useEffect(() => {
+    // useEffect(() => {
+    //     setTimer(0)
+    //     setFlipCount(0)
+    //     generateMatchPairs()
+    // }, [setTimer, setFlipCount, generateMatchPairs]);
 
-        setTimer(0)
-        setFlipCount(0)
-        generateMatchPairs()
+    // useEffect(() => {
+    //     const gameTimer = setInterval(() => {
+    //         if (useGameStore.getState().flipCount > 0) {
+    //             addTimer()
+    //         }
+    //     }, 1000);
 
-        let gameTimer
+    //     return () => clearInterval(gameTimer);
 
-        gameTimer = setInterval(() => {
-            addTimer()
-        }, 1000);
-
-        // Cleanup interval on component unmount
-        return () => clearInterval(gameTimer);
-
-    }, [setTimer, addTimer, setFlipCount, generateMatchPairs]);
+    // }, [addTimer]);
 
     return (
 

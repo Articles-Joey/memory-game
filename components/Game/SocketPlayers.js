@@ -15,22 +15,34 @@ export default function SocketPlayers() {
 
     return (
         <group>
-            {players?.length > 0 && players?.map((player, index) => (
-                <group key={index} position={[0, 5, 0]}>
+            {players?.length > 0 && players?.map((player, index) => {
 
-                    <SpacesuitModel
-                        scale={3}
-                        // position={[0, -0.2, 0]}
-                        position={[player?.x || 0, 1.5, player?.z || 0]}
-                        action={player?.action || "Idle"}
-                        rotation={[
-                            player?.rotation?.[0] || 0, 
-                            player?.rotation?.[1] || 0,
-                            player?.rotation?.[2] || 0,
-                        ]}
-                    />
+                if (
+                    player.id === socket?.id
+                    ||
+                    player.id === 'local'
+                ) return null;
 
-                    {/* <DummyPlayer 
+                return (
+                    <group key={index} position={[0, -1, 0]}>
+
+                        <SpacesuitModel
+                            scale={3}
+                            // position={[0, -0.2, 0]}
+                            position={[
+                                player?.position?.x || 0, 
+                                1.5, 
+                                player?.position?.z || 0
+                            ]}
+                            action={player?.action || "Idle"}
+                            rotation={[
+                                player?.rotation?.[0] || 0,
+                                player?.rotation?.[1] || 0,
+                                player?.rotation?.[2] || 0,
+                            ]}
+                        />
+
+                        {/* <DummyPlayer 
                         position={[player?.x || 0, 1.5, player?.z || 0]}
                         hitPower={player?.hitPower || 0}
                         hitRotation={player?.hitRotation || 0}
@@ -39,8 +51,10 @@ export default function SocketPlayers() {
                         server={server}
                     /> */}
 
-                </group>
-            ))}
+                    </group>
+                )
+
+            })}
         </group>
     )
 

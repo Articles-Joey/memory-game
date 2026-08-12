@@ -6,8 +6,8 @@ function createRandomGenerator(seed) {
     let value = seed;
 
     return () => {
-        value += 1;
-        return (Math.sin(value) + 1) / 2;
+        value = (value * 9301 + 49297) % 233280;
+        return value / 233280;
     };
 }
 
@@ -21,9 +21,7 @@ export default function TreeArea({ inner = 50, outer = 150, count = 200 }) {
             : count;
 
     const trees = useMemo(() => {
-        const seed = inner * 31 + outer * 17 + treeCount * 13
-            + (graphicsQuality === "Low" ? 1 : graphicsQuality === "Medium" ? 2 : 3);
-        const random = createRandomGenerator(seed);
+        const random = createRandomGenerator(inner * 31 + outer * 17 + treeCount * 13);
 
         return [...Array(treeCount)].map((_, i) => {
             // Generate a random angle
@@ -49,7 +47,7 @@ export default function TreeArea({ inner = 50, outer = 150, count = 200 }) {
                 rotation: rotation
             };
         });
-    }, [inner, outer, treeCount, graphicsQuality]);
+    }, [inner, outer, treeCount]);
 
     return (
         <group>

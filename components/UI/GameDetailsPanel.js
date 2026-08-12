@@ -1,5 +1,4 @@
 import { useGameStore } from "@/hooks/useGameStore"
-// import { useIceSlideStore } from "@/hooks/useIceSlideStore"
 
 export default function GameDetailsPanel() {
 
@@ -17,21 +16,34 @@ export default function GameDetailsPanel() {
                 <div>Players</div>
 
                 {players?.length > 0 && players.map((player, index) => (
-                    <div key={index} className="player-entry border p-2">
+                    <div key={index} className="player-entry border p-2 position-relative">
 
                         {/* <div className="player-color" style={{ backgroundColor: player.color }}></div> */}
 
-                        <div className="" style={{ fontSize: "0.6rem" }}>ID: {player.id}</div>
+                        <div
+                            className=""
+                            style={{ 
+                                fontSize: "0.6rem",
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                backgroundColor: "rgb(0, 0, 0)",
+                                color: "rgb(255, 255, 255)",
+                                padding: "0.1rem 0.3rem",
+                            }}
+                        >
+                            ID: {player.id}
+                        </div>
 
                         <div className="player-name d-flex align-items-center">
-                            <span
+                            {/* <span
                                 className={`badge ${player.ready ? 'bg-success' : 'bg-danger'} me-1`}
                                 style={{
                                     fontSize: "0.6rem"
                                 }}
                             >
                                 {player.ready ? "Ready" : "Not Ready"}
-                            </span>
+                            </span> */}
                             {player.nickname || "?"}
                         </div>
 
@@ -39,9 +51,13 @@ export default function GameDetailsPanel() {
 
                         <div className="d-flex justify-content-between">
 
-                            <div>X: {player?.x?.toFixed(2) || 0} | Z: {player?.z?.toFixed(2) || 0}</div>
+                            <div>
+                                {player.position?.x?.toFixed(2) || 0}, {player.position?.z?.toFixed(2) || 0}
+                            </div>
 
-                            <div className="d-flex">
+                            {/* <div>X: {player?.x?.toFixed(2) || 0} | Z: {player?.z?.toFixed(2) || 0}</div> */}
+
+                            {/* <div className="d-flex">
                                 <div className="me-2">
                                     <i className="fad fa-rocket"></i>
                                     {player.hitPower}
@@ -50,7 +66,7 @@ export default function GameDetailsPanel() {
                                     <i className="fad fa-undo"></i>
                                     {player.hitRotation}
                                 </div>
-                            </div>
+                            </div> */}
 
                         </div>
 
@@ -66,11 +82,14 @@ export default function GameDetailsPanel() {
 function RoundAndTimer() {
 
     const timer = useGameStore(state => state.gameState.timer)
+    const flipCount = useGameStore(state => state.gameState.flipCount)
+    // const timer = useGameStore(state => state.timer)
 
     return (
         <div className="d-flex align-items-center w-100 justify-content-between">
             {/* <div>Round: {gameState?.round || 0}</div> */}
             <div>Time: {timer || 0}</div>
+            <div>Flips: {flipCount || 0}</div>
         </div>
     )
 }

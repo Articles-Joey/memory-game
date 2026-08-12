@@ -1,6 +1,7 @@
 {
   "name": "memory-game",
-  "version": "0.1.0",
+  "description": "The objective is to clear the board by matching two cards one-by-one within the time limit. The player must flip the cards over to reveal an image and find a matching card hidden somewhere on the board. Only two cards can be flipped at once.",
+  "version": "0.2.0",
   "private": false,
   "homepage": "https://memory-game.articles.media",
   "engines": {
@@ -37,13 +38,14 @@
     "socket.io-client": "^4.8.3",
     "swr": "^2.4.2",
     "three": "^0.185.1",
+    "uuid": "^14.0.1",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3",
+    "eslint-config-next": "^16.3.0",
     "sass": "^1.102.0"
   }
 }

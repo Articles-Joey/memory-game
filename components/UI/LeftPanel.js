@@ -16,6 +16,7 @@ import DebugPanel from "./DebugPanel";
 import GameDetailsPanel from "./GameDetailsPanel";
 
 import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+import { useRouter } from "next/navigation";
 
 function LeftPanelContent(props) {
 
@@ -55,91 +56,8 @@ function LeftPanelContent(props) {
                     <GameMenuPrimaryButtonGroup
                         useStore={useStore}
                         type="GameMenu"
+                        useRouter={useRouter}
                     />
-
-                    <div className="w-50">
-                        <DropdownButton
-                            variant="articles w-100"
-                            size='sm'
-                            disabled
-                            id="dropdown-basic-button"
-                            className="dropdown-articles"
-                            title={
-                                <span>
-                                    <i className="fad fa-camera"></i>
-                                    <span>Camera</span>
-                                </span>
-                            }
-                        >
-
-                            <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
-
-                                {[
-                                    {
-                                        name: 'Free',
-                                    },
-                                    {
-                                        name: 'Player',
-                                    }
-                                ]
-                                    .map(location =>
-                                        <Dropdown.Item
-                                            key={location.name}
-                                            active={cameraMode == location.name}
-                                            onClick={() => {
-                                                setCameraMode(location.name)
-                                                setShowMenu(false)
-                                            }}
-                                            className="d-flex justify-content-between"
-                                        >
-                                            <i className="fad fa-camera"></i>
-                                            {location.name}
-                                        </Dropdown.Item>
-                                    )}
-
-                            </div>
-
-                        </DropdownButton>
-                    </div>
-
-                    <div className='w-50'>
-                        <DropdownButton
-                            variant="articles w-100"
-                            size='sm'
-                            id="dropdown-basic-button"
-                            className="dropdown-articles"
-                            title={
-                                <span>
-                                    <i className="fad fa-bug"></i>
-                                    <span>Debug </span>
-                                    <span>{debug ? 'On' : 'Off'}</span>
-                                </span>
-                            }
-                        >
-
-                            <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
-
-                                {[
-                                    false,
-                                    true
-                                ]
-                                    .map(location =>
-                                        <Dropdown.Item
-                                            key={location}
-                                            onClick={() => {
-                                                setDebug(location)
-                                                reloadScene()
-                                            }}
-                                            className="d-flex justify-content-between"
-                                        >
-                                            {location ? 'True' : 'False'}
-                                        </Dropdown.Item>
-                                    )}
-
-                            </div>
-
-                        </DropdownButton>
-                    </div>
 
                 </div>
 

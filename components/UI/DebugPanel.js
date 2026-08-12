@@ -3,18 +3,25 @@ import { useMemo } from "react"
 import ArticlesButton from "./Button"
 import { useStore } from "@/hooks/useStore"
 
+// import { generateMatchPairs } from "@/hooks/useGameStore"
+
 export default function DebugPanel() {
 
-    const matchPairs = useGameStore(state => state.matchPairs)
-    const timer = useGameStore(state => state.timer)
-    const flipCount = useGameStore(state => state.flipCount)
+    const matchPairs = useGameStore(state => state.gameState.matchPairs)
+
+    const timer = useGameStore(state => state.gameState.timer)
+    const flipCount = useGameStore(state => state.gameState.flipCount)
     const generateMatchPairs = useGameStore(state => state.generateMatchPairs)
+    const resetGameState = useGameStore(state => state.resetGameState)
     const reloadScene = useStore(state => state.reloadScene)
 
     const flippedCards = useMemo(() => {
-        let cards = matchPairs.filter(obj => obj.flipped)
+
+        console.log("matchPairs changed", matchPairs)
+        let cards = matchPairs?.filter(obj => obj.flipped)
         console.log(cards)
         return cards
+        
     }, [matchPairs])
 
     return (
@@ -47,7 +54,6 @@ export default function DebugPanel() {
 
                 <div className="small border p-2">
 
-                    {/* TODO - Move to DebugPanel */}
                     <ArticlesButton
                         size="sm"
                         className="w-50"
@@ -58,6 +64,17 @@ export default function DebugPanel() {
                     </ArticlesButton>
 
                     <ArticlesButton
+                        size="sm"
+                        className="w-50"
+                        onClick={() => {
+                            console.log(useGameStore.getState().gameState)
+                        }}
+                    >
+                        <i className="fad fa-redo"></i>
+                        Log Game
+                    </ArticlesButton>
+
+                    {/* <ArticlesButton
                         small
                         className="w-100"
                         onClick={() => {
@@ -65,16 +82,18 @@ export default function DebugPanel() {
                         }}
                     >
                         Log Match Pairs
-                    </ArticlesButton>
+                    </ArticlesButton> */}
 
                     <ArticlesButton
                         small
-                        className="w-100"
-                        onClick={() => {
-                            generateMatchPairs(4, 8)
+                        className="w-50"
+                        onClick={() => {                            
+                            // generateMatchPairs(4, 8)
+                            resetGameState()
                         }}
                     >
-                        Generate New Match Pairs
+                        <i className="fad fa-bomb"></i>
+                        Reset Game
                     </ArticlesButton>
 
                 </div>

@@ -16,6 +16,9 @@ import NicknameInput from '@articles-media/articles-dev-box/NicknameInput';
 import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
 import SessionButton from '@articles-media/articles-dev-box/SessionButton';
 import { GamepadKeyboard, PieMenu } from '@articles-media/articles-gamepad-helper';
+import PageTemplateLandingPage from '@articles-media/articles-dev-box/PageTemplateLandingPage';
+import LandingBackgroundAnimation from '@/components/Game/LandingBackgroundAnimation';
+
 const ReturnToLauncherButton = dynamic(() =>
     import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
     { ssr: false }
@@ -40,6 +43,7 @@ export default function LobbyPage() {
 
     const darkMode = useStore((state) => state.darkMode)
     const toggleDarkMode = useStore((state) => state.toggleDarkMode)
+    const toontownMode = useStore((state) => state.toontownMode)
 
     const nicknameKeyboard = useStore((state) => state.nicknameKeyboard)
 
@@ -49,19 +53,21 @@ export default function LobbyPage() {
 
     const lobbyDetails = useStore((state) => state.lobbyDetails)
 
-    useEffect(() => {
+    const [joinGame, setJoinGame] = useState(false)
 
-        if (connected) {
-            socket?.emit('join-room', `game:${game_key}-landing`);
-        }
+    // useEffect(() => {
 
-        return function cleanup() {
-            socket?.emit('leave-room', `game:${game_key}-landing`)
-        };
+    //     if (connected) {
+    //         socket?.emit('join-room', `game:${game_key}-landing`);
+    //     }
 
-    }, [connected, socket]);
+    //     return function cleanup() {
+    //         socket?.emit('leave-room', `game:${game_key}-landing`)
+    //     };
 
- const {
+    // }, [connected, socket]);
+
+    const {
         data: userToken,
         error: userTokenError,
         isLoading: userTokenLoading,
@@ -145,31 +151,25 @@ export default function LobbyPage() {
                 />
             </Suspense>
 
-            <div className='background-wrap'>
-                {darkMode ?
-                    <img
-                        src={`img/dark-preview.webp`}
-                        alt=""
-                    // fill
-                    // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
-                    />
-                    :
-                    <img
-                        src={`img/preview.webp`}
-                        alt=""
-                    // fill
-                    // style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(10px)' }}
-                    />
+            <PageTemplateLandingPage
+                useSocketStore={useSocketStore}
+                useStore={useStore}
+                // RotatingMascot={RotatingMascot}
+                Link={Link}
+                logoImage={`img/icon.png`}
+                LandingBackgroundAnimation={
+                    <LandingBackgroundAnimation />
                 }
-
-            </div>
-
-            <div className="container d-flex flex-column-reverse flex-lg-row justify-content-center align-items-center">
-
-                <div
-                    style={{ "width": "20rem" }}
-                >
-
+                heroOverride={<>
+                    {/* <img
+                        src={
+                            toontownMode ?
+                                "img/toontown-hero.webp"
+                                :
+                        }
+                        alt="Hero Image"
+                        className='w-100'
+                    /> */}
                     <div
                         className='hero mb-3 d-flex flex-column justify-content-center align-items-center'
                         style={{ position: 'relative' }}
@@ -195,154 +195,43 @@ export default function LobbyPage() {
                             <span className='red'>me</span>
                         </div>
                     </div>
-
-                    <div
-                        className="card card-articles card-sm mb-3"
-                    >
-
-                        <div className='card-header d-flex align-items-center'>
-
-                            <NicknameInput
-                                useStore={useStore}
-                            />
-
-                        </div>
-
-                        <div className="card-body">
-
-                            <Link href={{
-                                pathname: `/play`
-                            }}>
-                                <ArticlesButton
-                                    className={`w-100 mb-3`}
-                                    small
-                                >
-                                    <i className="fas fa-play"></i>
-                                    Play Single Player
-                                </ArticlesButton>
-                            </Link>
-
-                            <div className="fw-bold mb-1 small text-center">
-                                {lobbyDetails.players.length || 0} player{lobbyDetails.players.length > 1 && 's'} in the lobby.
-                            </div>
-
-                            <div className="servers">
-
-                                {[1, 2, 3, 4].map(id => {
-
-                                    let lobbyLookup = lobbyDetails?.fourFrogsGlobalState?.games?.find(lobby =>
-                                        parseInt(lobby.server_id) == id
-                                    )
-
-                                    return (
-                                        <div key={id} className="server">
-
-                                            <div className='d-flex justify-content-between align-items-center w-100 mb-2'>
-                                                <div className="mb-0" style={{ fontSize: '0.9rem' }}><b>Server {id}</b></div>
-                                                <div className='mb-0'>{lobbyLookup?.players?.length || 0}/4</div>
-                                            </div>
-
-                                            <div className='d-flex justify-content-around w-100 mb-1'>
-                                                {[1, 2, 3, 4].map(player_count => {
-
-                                                    let playerLookup = false
-
-                                                    if (lobbyLookup?.players?.length >= player_count) playerLookup = true
-
-                                                    return (
-                                                        <div key={player_count} className="icon" style={{
-                                                            width: '20px',
-                                                            height: '20px',
-                                                            ...(playerLookup ? {
-                                                                backgroundColor: 'black',
-                                                            } : {
-                                                                backgroundColor: 'gray',
-                                                            }),
-                                                            border: '1px solid black'
-                                                        }}>
-
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-
-                                            <Link
-                                                className={``}
-                                                href={{
-                                                    pathname: `/play`,
-                                                    query: {
-                                                        server: id
-                                                    }
-                                                }}
-                                            >
-                                                <ArticlesButton
-                                                    className="px-5"
-                                                    small
-                                                    disabled={!connected}
-                                                >
-                                                    Join
-                                                </ArticlesButton>
-                                            </Link>
-
-                                        </div>
-                                    )
-                                })}
-
-                            </div>
-
-                        </div>
-
-                        <div className="card-footer d-flex flex-wrap justify-content-center">
-
-                            <GameMenuPrimaryButtonGroup
-                            useStore={useStore}
-                            type="Landing"
-                        />
-
-                        </div>
-
-                    </div>
-
-                    <SessionButton
-                        port={game_port}
-                    />
-
-                    <ReturnToLauncherButton />
-
-                </div>
-
-                <GameScoreboard
-                    game={process.env.NEXT_PUBLIC_GAME_NAME}
-                    style="Default"
-                    darkMode={darkMode ? true : false}
-                    prepend={
+                </>}
+                NicknameInputConfig={{
+                    PreComponent:
                         <>
-                            {/* <div
-                                style={{
-                                    width: '100%',
-                                    height: '200px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <RotatingMascot />
-                            </div> */}
+                            {/* <img
+                                className='panel-bg me-2'
+                                src="img/toontown_icon.webp"
+                                width={70}
+                                height={70}
+                            /> */}
                         </>
-                    }
-                />
+                }}
+                backgroundImage={
+                    toontownMode ?
+                        darkMode ?
+                            `img/toontown-preview.webp`
+                            :
+                            `img/toontown-preview.webp`
+                        :
+                        darkMode ?
+                            `img/preview-dark.webp`
+                            :
+                            `img/preview.webp`
+                }
+                singlePlayerConfig={{
+                    attachServerType: "single-player",
+                }}
+                multiplayerConfig={{
+                    type: "WebSocket",
+                    comingSoon: true,
+                    defaultServers: 2,
+                    privateServerSupport: false,
+                    onlinePlayersTemplate: "2.0",
+                }}
+                brandingTextClass="jaro-primary"
+            />
 
-                <Ad
-                    style="Default"
-                    section={"Games"}
-                    section_id={process.env.NEXT_PUBLIC_GAME_NAME}
-                    darkMode={darkMode ? true : false}
-                    user_ad_token={userToken}
-                    userDetails={userDetails}
-                    userDetailsLoading={userDetailsLoading}
-                />
-
-            </div>
         </div>
     );
 }

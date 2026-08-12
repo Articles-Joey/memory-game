@@ -1,4 +1,4 @@
-// import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from 'react';
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
@@ -11,24 +11,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/index.scss";
 
 import "@articles-media/articles-dev-box/dist/style.css";
-
 import "@articles-media/articles-gamepad-helper/dist/articles-gamepad-helper.css";
 
-import { Suspense } from 'react';
-// import GlobalClientModals from '@/components/UI/GlobalClientModals';
-// import DarkModeHandler from '@/components/UI/DarkModeHandler';
 import LayoutClient from './layout-client';
-import SocketLogicHandler from '@/components/SocketLogicHandler';
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+import SocketLogicHandler from '@/components/Handlers/SocketLogicHandler';
+import SinglePlayerHandler from '@/components/Handlers/SinglePlayerHandler';
 
 export const metadata = {
   title: "Memory Game | Articles Media",
@@ -41,22 +28,15 @@ export default function RootLayout({ children }) {
 
       <head>
 
-        {/* <link
-          rel="stylesheet"
-          href={`${process.env.NEXT_PUBLIC_CDN}fonts/fontawsome/css/all.min.css`}
-        /> */}
-
       </head>
 
-      <body
-      // className={`${geistSans.variable} ${geistMono.variable}`}
-      >
+      <body>
         
         <LayoutClient />
 
         <Suspense>
+          <SinglePlayerHandler />
           <SocketLogicHandler />
-          {/* <GlobalClientModals /> */}
         </Suspense>
 
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>

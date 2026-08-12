@@ -1,7 +1,7 @@
 // import { create } from 'zustand'
 import { createWithEqualityFn as create } from 'zustand/traditional'
 
-function generateMatchPairs(rows, cols) {
+export function generateMatchPairs(rows, cols) {
     // Step 1: Generate the cards with locations
     const cards = [];
     for (let row = 0; row < rows; row++) {
@@ -71,21 +71,38 @@ export const useGameStore = create((set) => ({
     },
     addTimer: (newValue) => {
         set((prev) => ({
-            timer: prev.timer + 1
+            gameState: {
+                ...prev.gameState,
+                timer: prev.gameState.timer + 1
+            }
         }))
     },
 
     matchPairs: generateMatchPairs(4, 8),
+    // setMatchPairs: (newValue) => {
+    //     set((prev) => ({
+    //         matchPairs: newValue
+    //     }))
+    // },
     setMatchPairs: (newValue) => {
         set((prev) => ({
-            matchPairs: newValue
+            // matchPairs: newValue
+            gameState: {
+                ...prev.gameState,
+                matchPairs: newValue
+            }
         }))
     },
     generateMatchPairs: () => {
         let newPairs = generateMatchPairs(4, 8)
         set((prev) => ({
-            matchPairs: newPairs,
-            flipCount: 0
+            // matchPairs: newPairs,
+            // flipCount: 0
+            gameState: {
+                ...prev.gameState,
+                matchPairs: newPairs,
+                flipCount: 0
+            }
         }))
     },
 
@@ -123,7 +140,11 @@ export const useGameStore = create((set) => ({
     },
     addFlipCount: (newValue) => {
         set((prev) => ({
-            flipCount: prev.flipCount + 1
+            // flipCount: prev.flipCount + 1
+            gameState: {
+                ...prev.gameState,
+                flipCount: prev.gameState.flipCount + 1
+            }
         }))
     },
 
@@ -154,26 +175,24 @@ export const useGameStore = create((set) => ({
     },
 
     gameState: {},
+    resetGameState: () => {
+
+        let newPairs = generateMatchPairs(4, 8)
+        console.log("Resetting game state with new pairs", newPairs)
+        
+        set((prev) => ({
+            gameState: {
+                timer: 0,
+                flipCount: 0,
+                matchPairs: newPairs,
+                flippedCards: [],
+                // Add any other properties you want to reset here
+            }
+        }))
+    },
     setGameState: (newValue) => {
         set((prev) => ({
             gameState: newValue
         }))
     },
-}))
-
-export const useControlsStore = create((set) => ({
-
-    touchControls: {
-        jump: false,
-        left: false,
-        right: false,
-        up: false,
-        down: false
-    },
-    setTouchControls: (newValue) => {
-        set((prev) => ({
-            touchControls: newValue
-        }))
-    }
-
 }))

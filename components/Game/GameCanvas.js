@@ -1,4 +1,4 @@
-import { createContext, createRef, forwardRef, memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createContext, createRef, forwardRef, memo, Suspense, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { Sky, useDetectGPU, useTexture, OrbitControls, Cylinder, QuadraticBezierLine, Text, Image, Stats } from "@react-three/drei";
@@ -61,35 +61,12 @@ const GrassPlane = () => {
     );
 };
 
-function GameCanvas(props) {
+function GameCanvas({
+    landingAnimationMode = false,
+}) {
 
     const debug = useStore(state => state.debug);
     const darkMode = useStore(state => state.darkMode)
-
-    let gameContent = (
-        <>
-            <Player />
-
-            <SocketPlayers />
-
-            <Cards />
-
-            <Ground />
-        </>
-    )
-
-    let physicsContent
-    if (debug) {
-        physicsContent = (
-            <Debug>
-                {gameContent}
-            </Debug>
-        )
-    } else {
-        physicsContent = (
-            gameContent
-        )
-    }
 
     return (
         <Canvas camera={{ position: [0, 50, 30], fov: 50 }}>
@@ -131,17 +108,36 @@ function GameCanvas(props) {
 
             {/* <spotLight intensity={30000} position={[-50, 100, 50]} angle={5} penumbra={1} /> */}
 
-            <GrassPlane />
+            <Suspense>
+                <GrassPlane />
+                <TreeArea />
+                <FenceSquare />
+                <GrassArea />
+            </Suspense>
 
-            <TreeArea />
-            <FenceSquare />
-            <GrassArea />
-
-            <Physics>
-
-                {physicsContent}
-
-            </Physics>
+            <Suspense>
+                <Physics>
+    
+                    <Debug
+                        show={debug}
+                        color="black"
+                        scale={1.1}
+                    >
+                        <>
+    
+                            {landingAnimationMode !== true && <>
+                                <Player />
+                                <SocketPlayers />
+                                <Cards />
+                            </>}
+    
+                            <Ground />
+    
+                        </>
+                    </Debug>
+    
+                </Physics>
+            </Suspense>
 
         </Canvas>
     )

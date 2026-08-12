@@ -9,7 +9,8 @@ import { useKeyboard } from "@/hooks/useKeyboard"
 import { Model as SpacesuitModel } from "@/components/Models/Spacesuit";
 
 import { useControllerStore } from '@/hooks/useControllerStore';
-import { useControlsStore, useGameStore } from "@/hooks/useGameStore";
+import { useGameStore } from "@/hooks/useGameStore";
+import useControlsStore from "@/hooks/useTouchControlsStore";
 import { useSocketStore } from "@/hooks/useSocketStore";
 
 // import ClownfishModel from "./PlayerModels/Clownfish"
