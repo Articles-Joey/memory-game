@@ -57,23 +57,23 @@ export default function GamePage() {
 
     // const [players, setPlayers] = useState([])
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (server && socket.connected) {
-            const roomName = `game:${game_key}-room-${server}`;
-            socket.emit('join-room', roomName, {
-                game_id: server,
-                nickname: nickname,
-                client_version: '1',
+    //     if (server && socket.connected) {
+    //         const roomName = `game:${game_key}-room-${server}`;
+    //         socket.emit('join-room', roomName, {
+    //             game_id: server,
+    //             nickname: nickname,
+    //             client_version: '1',
 
-            });
+    //         });
 
-            return function cleanup() {
-                socket.emit('leave-room', roomName)
-            };
-        }
+    //         return function cleanup() {
+    //             socket.emit('leave-room', roomName)
+    //         };
+    //     }
 
-    }, [server, socket.connected, nickname]);
+    // }, [server, socket.connected, nickname]);
 
     // const [showMenu, setShowMenu] = useState(false)
 
@@ -104,10 +104,7 @@ export default function GamePage() {
         // exitFullscreen,
         // setShowMenu
     }
-
-    const game_name = 'Memory Game'
-    const game_key = 'memory-game'
-
+    
     const {
         addTimer,
         setTimer,

@@ -123,6 +123,10 @@ function Card({ args, position, name }) {
 
     const textColor = toontownMode ? "white" : "black"
 
+    const [flipped, setFlipped] = useState(false);
+
+    const [occupied, setOccupied] = useState(false);
+
     const [ref, api] = useBox(() => (
         {
             // mass: 0,
@@ -167,10 +171,6 @@ function Card({ args, position, name }) {
         return matchPairs.find(obj => obj.flatLocation == name)
 
     }, [matchPairs, name]);
-
-    const [flipped, setFlipped] = useState(false);
-
-    const [occupied, setOccupied] = useState(false);
 
     useHotkeys(['Space', 'Enter'], () => {
 
