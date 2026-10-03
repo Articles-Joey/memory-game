@@ -1,224 +1,169 @@
-"use client"
-import { useEffect, useContext, useState, Suspense } from 'react';
+"use client";
 
-import Image from 'next/image'
-import Link from 'next/link'
-import dynamic from 'next/dynamic'
+import { Suspense } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import Box from "@mui/material/Box";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import InfoIcon from "@mui/icons-material/Info";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import PaletteIcon from "@mui/icons-material/Palette";
+import { GamepadKeyboard, PieMenu } from "@articles-media/articles-gamepad-helper";
+import PageTemplateLandingPage from "@articles-media/articles-dev-box/PageTemplateLandingPage";
+import { useStore } from "@/hooks/useStore";
+import { useSocketStore } from "@/hooks/useSocketStore";
 
-import { useStore } from '@/hooks/useStore';
-import { useSocketStore } from '@/hooks/useSocketStore';
-
-import ArticlesButton from '@/components/UI/Button';
-
-import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
-import useUserToken from '@articles-media/articles-dev-box/useUserToken';
-import NicknameInput from '@articles-media/articles-dev-box/NicknameInput';
-import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
-import SessionButton from '@articles-media/articles-dev-box/SessionButton';
-import { GamepadKeyboard, PieMenu } from '@articles-media/articles-gamepad-helper';
-import PageTemplateLandingPage from '@articles-media/articles-dev-box/PageTemplateLandingPage';
-import LandingBackgroundAnimation from '@/components/Game/LandingBackgroundAnimation';
-
-const ReturnToLauncherButton = dynamic(() =>
-    import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
-    { ssr: false }
+const LandingBackgroundAnimation = dynamic(
+    () => import("@/components/Game/LandingBackgroundAnimation"),
+    { ssr: false },
 );
-const GameScoreboard = dynamic(() =>
-    import('@articles-media/articles-dev-box/GameScoreboard'),
-    { ssr: false }
-);
-const Ad = dynamic(() =>
-    import('@articles-media/articles-dev-box/Ad'),
-    { ssr: false }
-);
-
-const game_key = process.env.NEXT_PUBLIC_GAME_KEY
-const game_name = process.env.NEXT_PUBLIC_GAME_NAME
-const game_port = process.env.NEXT_PUBLIC_GAME_PORT
 
 export default function LobbyPage() {
+    const darkMode = useStore((state) => state.darkMode);
+    const nicknameKeyboard = useStore((state) => state.nicknameKeyboard);
 
-    const socket = useSocketStore(state => state.socket)
-    const connected = useSocketStore(state => state.connected)
-
-    const darkMode = useStore((state) => state.darkMode)
-    const toggleDarkMode = useStore((state) => state.toggleDarkMode)
-    const toontownMode = useStore((state) => state.toontownMode)
-
-    const nicknameKeyboard = useStore((state) => state.nicknameKeyboard)
-
-    const setShowInfoModal = useStore((state) => state.setShowInfoModal)
-    const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
-    const setShowCreditsModal = useStore((state) => state.setShowCreditsModal)
-
-    const lobbyDetails = useStore((state) => state.lobbyDetails)
-
-    const [joinGame, setJoinGame] = useState(false)
-
-    // useEffect(() => {
-
-    //     if (connected) {
-    //         socket?.emit('join-room', `game:${game_key}-landing`);
-    //     }
-
-    //     return function cleanup() {
-    //         socket?.emit('leave-room', `game:${game_key}-landing`)
-    //     };
-
-    // }, [connected, socket]);
-
-    const {
-        data: userToken,
-        error: userTokenError,
-        isLoading: userTokenLoading,
-        mutate: userTokenMutate
-    } = useUserToken(
-        process.env.NEXT_PUBLIC_GAME_PORT
-    );
-
-    const {
-        data: userDetails,
-        error: userDetailsError,
-        isLoading: userDetailsLoading,
-        mutate: userDetailsMutate
-    } = useUserDetails({
-        token: userToken
-    });
+    const pieOptions = [
+        {
+            label: "Settings",
+            Icon: SettingsIcon,
+            callback: () => useStore.getState().setShowSettingsModal((previous) => !previous),
+        },
+        {
+            label: "Go Back",
+            Icon: ArrowBackIcon,
+            callback: () => window.history.back(),
+        },
+        {
+            label: "Credits",
+            Icon: InfoIcon,
+            callback: () => useStore.getState().setShowCreditsModal(true),
+        },
+        {
+            label: "Game Launcher",
+            Icon: SportsEsportsIcon,
+            callback: () => {
+                window.location.href = "https://games.articles.media";
+            },
+        },
+        {
+            label: `${darkMode ? "Light" : "Dark"} Mode`,
+            Icon: PaletteIcon,
+            callback: () => useStore.getState().toggleDarkMode(),
+        },
+    ];
 
     return (
-
-        <div className={`landing-page`}>
-
+        <Box
+            sx={{
+                position: "relative",
+                isolation: "isolate",
+                "& .landing-page": {
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "100vh",
+                },
+                "& .servers": {
+                    display: "grid",
+                    gap: "5px",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                },
+                "& .server": {
+                    p: "0.5rem",
+                    border: "1px solid rgba(0,0,0,0.25)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                },
+                "& .ad-wrap": {
+                    mt: "1rem",
+                    "@media (min-width: 992px)": {
+                        mt: 0,
+                        display: "block",
+                        position: "absolute",
+                        right: "1rem",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                    },
+                },
+                "& .background-wrap": {
+                    position: "fixed",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    zIndex: -1,
+                    "& img": { filter: "blur(4px)", width: "100%", height: "100%" },
+                },
+            }}
+        >
             <Suspense>
                 <GamepadKeyboard
-                    disableToggle={true}
+                    disableToggle
                     active={nicknameKeyboard}
                     onFinish={(text) => {
-                        console.log("FINISH KEYBOARD", text)
                         useStore.getState().setNickname(text);
                         useStore.getState().setNicknameKeyboard(false);
                     }}
-                    onCancel={(text) => {
-                        console.log("CANCEL KEYBOARD", text)
-                        // useStore.getState().setNickname(text);
-                        useStore.getState().setNicknameKeyboard(false);
-                    }}
+                    onCancel={() => useStore.getState().setNicknameKeyboard(false)}
                 />
+                {/* PieMenu renders React nodes in labels, so put the icons there. */}
                 <PieMenu
-                    options={[
-                        {
-                            label: 'Settings',
-                            icon: 'fad fa-cog',
-                            callback: () => {
-                                setShowSettingsModal(prev => !prev)
-                            }
-                        },
-                        {
-                            label: 'Go Back',
-                            icon: 'fad fa-arrow-left',
-                            callback: () => {
-                                window.history.back()
-                            }
-                        },
-                        {
-                            label: 'Credits',
-                            icon: 'fad fa-info-circle',
-                            callback: () => {
-                                setShowCreditsModal(true)
-                            }
-                        },
-                        {
-                            label: 'Game Launcher',
-                            icon: 'fad fa-gamepad',
-                            callback: () => {
-                                window.location.href = 'https://games.articles.media';
-                            }
-                        },
-                        {
-                            label: `${darkMode ? "Light" : "Dark"} Mode`,
-                            icon: 'fad fa-palette',
-                            callback: () => {
-                                toggleDarkMode()
-                            }
-                        }
-                    ]}
-                    onFinish={(event) => {
-                        console.log("Event", event)
-                        if (event.callback) {
-                            event.callback()
-                        }
-                    }}
+                    options={pieOptions.map(({ label, Icon, callback }) => ({
+                        label: (
+                            <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}>
+                                <Icon fontSize="small" />
+                                {label}
+                            </Box>
+                        ),
+                        callback,
+                    }))}
+                    onFinish={(event) => event.callback?.()}
                 />
             </Suspense>
 
             <PageTemplateLandingPage
                 useSocketStore={useSocketStore}
                 useStore={useStore}
-                // RotatingMascot={RotatingMascot}
                 Link={Link}
-                logoImage={`img/icon.png`}
-                LandingBackgroundAnimation={
-                    <LandingBackgroundAnimation />
-                }
-                heroOverride={<>
-                    {/* <img
-                        src={
-                            toontownMode ?
-                                "img/toontown-hero.webp"
-                                :
-                        }
-                        alt="Hero Image"
-                        className='w-100'
-                    /> */}
-                    <div
-                        className='hero mb-3 d-flex flex-column justify-content-center align-items-center'
-                        style={{ position: 'relative' }}
-                    >
+                useRouter={useRouter}
+                logoImage="img/icon.png"
+                LandingBackgroundAnimation={<LandingBackgroundAnimation />}
+                heroOverride={
+                    <Box sx={{ mb: "1rem", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "relative" }}>
                         <Image
-                            src={"/img/icon.png"}
+                            src="/img/icon.png"
                             alt="Logo"
-                            // fill
                             loading="eager"
                             width={200}
                             height={200}
-                            style={{
-                                objectFit: 'contain',
-                                // height: '200px',
-                                // width: '200px',
-                            }}
+                            style={{ objectFit: "contain" }}
                         />
-                        <div className="hero-title">
-                            <span className='green'>Mem</span>
-                            <span className='blue'>ory</span>
-                            <span> </span>
-                            <span className='yellow'>Ga</span>
-                            <span className='red'>me</span>
-                        </div>
-                    </div>
-                </>}
-                NicknameInputConfig={{
-                    PreComponent:
-                        <>
-                            {/* <img
-                                className='panel-bg me-2'
-                                src="img/toontown_icon.webp"
-                                width={70}
-                                height={70}
-                            /> */}
-                        </>
-                }}
-                backgroundImage={
-                    toontownMode ?
-                        darkMode ?
-                            `img/toontown-preview.webp`
-                            :
-                            `img/toontown-preview.webp`
-                        :
-                        darkMode ?
-                            `img/preview-dark.webp`
-                            :
-                            `img/preview.webp`
+                        <Box
+                            sx={{
+                                fontSize: "2.5rem",
+                                fontWeight: 900,
+                                WebkitTextStroke: "2px #f4dfba",
+                                animation: "hero-scale-pulse 2s infinite ease-in-out",
+                                mt: "-2rem",
+                                "@keyframes hero-scale-pulse": {
+                                    "0%, 100%": { transform: "scale(1)" },
+                                    "50%": { transform: "scale(1.5)" },
+                                },
+                            }}
+                        >
+                            <Box component="span" sx={{ color: "#54b88b" }}>Mem</Box>
+                            <Box component="span" sx={{ color: "#656b99" }}>ory</Box>
+                            {" "}
+                            <Box component="span" sx={{ color: "#ffb419" }}>Ga</Box>
+                            <Box component="span" sx={{ color: "#f94567" }}>me</Box>
+                        </Box>
+                    </Box>
                 }
+                backgroundImage={darkMode ? "/img/dark-preview.webp" : "/img/preview.webp"}
                 singlePlayerConfig={{
                     attachServerType: "single-player",
                 }}
@@ -231,7 +176,6 @@ export default function LobbyPage() {
                 }}
                 brandingTextClass="jaro-primary"
             />
-
-        </div>
+        </Box>
     );
 }

@@ -1,105 +1,51 @@
-import { useGameStore } from "@/hooks/useGameStore"
-import { useMemo } from "react"
-import ArticlesButton from "./Button"
-import { useStore } from "@/hooks/useStore"
+"use client";
 
-// import { generateMatchPairs } from "@/hooks/useGameStore"
+import { useMemo } from "react";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Chip from "@mui/material/Chip";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import TerminalIcon from "@mui/icons-material/Terminal";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import { useGameStore } from "@/hooks/useGameStore";
+import { useStore } from "@/hooks/useStore";
+import ArticlesButton from "./Button";
 
 export default function DebugPanel() {
-
-    const matchPairs = useGameStore(state => state.gameState.matchPairs)
-
-    const timer = useGameStore(state => state.gameState.timer)
-    const flipCount = useGameStore(state => state.gameState.flipCount)
-    const generateMatchPairs = useGameStore(state => state.generateMatchPairs)
-    const resetGameState = useGameStore(state => state.resetGameState)
-    const reloadScene = useStore(state => state.reloadScene)
-
-    const flippedCards = useMemo(() => {
-
-        console.log("matchPairs changed", matchPairs)
-        let cards = matchPairs?.filter(obj => obj.flipped)
-        console.log(cards)
-        return cards
-        
-    }, [matchPairs])
+    const matchPairs = useGameStore((state) => state.gameState.matchPairs);
+    const timer = useGameStore((state) => state.gameState.timer);
+    const flipCount = useGameStore((state) => state.gameState.flipCount);
+    const resetGameState = useGameStore((state) => state.resetGameState);
+    const reloadScene = useStore((state) => state.reloadScene);
+    const flippedCards = useMemo(() => matchPairs?.filter((card) => card.flipped), [matchPairs]);
 
     return (
-        <div
-            className="card card-articles card-sm"
-        >
-            <div className="card-body">
-
-                <div className="small text-muted">Debug Controls</div>
-
-                <div className="border p-2">
-
-                    <div className="small">Timer: {timer}</div>
-
-                    <div className="small">Flip Count: {flipCount}</div>
-
-                    <div className="small">Flipped:</div>
-
-                    <div>
-                        {flippedCards?.map(obj => {
-                            return (
-                                <span key={obj.flatLocation} className="badge bg-dark border border-black">
-                                    {obj.flatLocation}
-                                </span>
-                            )
-                        })}
-                    </div>
-
-                </div>
-
-                <div className="small border p-2">
-
-                    <ArticlesButton
-                        size="sm"
-                        className="w-50"
-                        onClick={reloadScene}
-                    >
-                        <i className="fad fa-redo"></i>
+        <Card sx={{ bgcolor: "game.card", backgroundImage: "none", fontSize: "0.875rem", border: 1, borderColor: "divider" }}>
+            <CardContent sx={{ p: 1, "&:last-child": { pb: 1 } }}>
+                <Box sx={{ fontSize: "0.875em", color: "text.secondary" }}>Debug Controls</Box>
+                <Box sx={{ border: 1, borderColor: "divider", p: 1 }}>
+                    <Box sx={{ fontSize: "0.875em" }}>Timer: {timer}</Box>
+                    <Box sx={{ fontSize: "0.875em" }}>Flip Count: {flipCount}</Box>
+                    <Box sx={{ fontSize: "0.875em" }}>Flipped:</Box>
+                    <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+                        {flippedCards?.map((card) => (
+                            <Chip key={card.flatLocation} label={card.flatLocation} size="small" sx={{ bgcolor: "#212529", color: "#fff", border: "1px solid #000" }} />
+                        ))}
+                    </Box>
+                </Box>
+                <Box sx={{ fontSize: "0.875em", border: 1, borderColor: "divider", p: 1, display: "flex", flexWrap: "wrap" }}>
+                    <ArticlesButton small sx={{ width: "50%" }} onClick={reloadScene} startIcon={<RestartAltIcon />}>
                         Reload Game
                     </ArticlesButton>
-
-                    <ArticlesButton
-                        size="sm"
-                        className="w-50"
-                        onClick={() => {
-                            console.log(useGameStore.getState().gameState)
-                        }}
-                    >
-                        <i className="fad fa-redo"></i>
+                    <ArticlesButton small sx={{ width: "50%" }} onClick={() => console.log(useGameStore.getState().gameState)} startIcon={<TerminalIcon />}>
                         Log Game
                     </ArticlesButton>
-
-                    {/* <ArticlesButton
-                        small
-                        className="w-100"
-                        onClick={() => {
-                            console.log(matchPairs)
-                        }}
-                    >
-                        Log Match Pairs
-                    </ArticlesButton> */}
-
-                    <ArticlesButton
-                        small
-                        className="w-50"
-                        onClick={() => {                            
-                            // generateMatchPairs(4, 8)
-                            resetGameState()
-                        }}
-                    >
-                        <i className="fad fa-bomb"></i>
+                    <ArticlesButton small sx={{ width: "50%" }} onClick={resetGameState} startIcon={<DeleteSweepIcon />}>
                         Reset Game
                     </ArticlesButton>
-
-                </div>
-
-            </div>
-        </div>
-    )
-
+                </Box>
+            </CardContent>
+        </Card>
+    );
 }

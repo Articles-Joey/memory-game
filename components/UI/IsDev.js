@@ -1,4 +1,6 @@
+"use client";
 import { useSyncExternalStore } from 'react';
+import Box from '@mui/material/Box';
 
 // import { useSelector, useDispatch } from 'react-redux'
 
@@ -16,7 +18,7 @@ export default function IsDev({className, noOutline, children, inline}) {
     // I think this is better but you can do either way
     if (children && userReduxState?.roles?.isDev && isMounted) {
         return (
-            <div className={`is-dev-content ${noOutline && 'no-outline'} ${className} ${inline && 'd-inline-block'}`}>{children}</div>
+            <Box className={`is-dev-content ${noOutline ? 'no-outline' : ''} ${className || ''}`} sx={{ display: inline ? 'inline-block' : 'block' }}>{children}</Box>
         )
     }
 

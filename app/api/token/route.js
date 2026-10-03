@@ -26,7 +26,7 @@ export async function GET(req) {
         
     } catch (error) {
 
-        console.error("Error in GET /api/auth/oauth/articles/details:", error);
+        console.error("Error in GET /api/token:", error);
         return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
     }
 

@@ -1,7 +1,9 @@
+"use client";
 import { memo, useEffect, useRef, useState } from "react";
+import Box from "@mui/material/Box";
 
 import ArticlesButton from "@/components/UI/Button"
-import { useControlsStore, useGameStore } from "@/hooks/useGameStore"
+import useControlsStore from "@/hooks/useTouchControlsStore"
 
 const arePropsEqual = (prevProps, nextProps) => {
     // Compare all props for equality
@@ -170,48 +172,34 @@ function TouchControlsBase(props) {
     }, []);
 
     return (
-        <div className={`touch-controls-area ${!touchControlsEnabled && 'd-none'}`}>
-
-            <div className='d-flex'>
-
-                <div>
-                    {/* <ArticlesButton
-                    onClick={() => {
-                        setTouchControls({
-                            left: true
-                        })
-                    }}
-                >
-                    Left
-                </ArticlesButton>
-                <ArticlesButton
-                    onClick={() => {
-                        setTouchControls({
-                            right: true
-                        })
-                    }}
-                >
-                    Right
-                </ArticlesButton> */}
-                    <div style={{
-                        position: 'relative',
-                        width: '100px',
-                        height: '100px',
-                        backgroundColor: 'black'
-                    }} id="zone_joystick"></div>
-                </div>
-
-                <div className='ms-2 d-none d-lg-block'>
-                    <div>Active: {nStart ? 'True' : 'False'}</div>
-                    <div>Direction: {nDirection ? nDirection : 'None'}</div>
-                    <div>Touch: {JSON.stringify(touchControls)}</div>
-                </div>
-
-            </div>
-
+        <Box
+            className="touch-controls-area"
+            sx={{
+                position: "fixed",
+                bottom: 50,
+                left: 0,
+                width: "100%",
+                height: 150,
+                zIndex: 1,
+                bgcolor: "rgba(0,0,0,0.5)",
+                p: "1rem",
+                display: touchControlsEnabled ? "flex" : "none",
+                justifyContent: "space-between",
+                alignItems: "center",
+            }}
+        >
+            <Box sx={{ display: "flex" }}>
+                <Box>
+                    <Box id="zone_joystick" sx={{ position: "relative", width: 100, height: 100, bgcolor: "#000" }} />
+                </Box>
+                <Box sx={{ ml: "0.5rem", display: "none", "@media (min-width: 992px)": { display: "block" } }}>
+                    <Box>Active: {nStart ? 'True' : 'False'}</Box>
+                    <Box>Direction: {nDirection ? nDirection : 'None'}</Box>
+                    <Box>Touch: {JSON.stringify(touchControls)}</Box>
+                </Box>
+            </Box>
             <JumpButton />
-
-        </div>
+        </Box>
     )
 }
 

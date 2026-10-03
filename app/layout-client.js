@@ -4,6 +4,7 @@ import packageInfo from '@/package.json';
 import { Suspense } from 'react';
 import DarkModeHandler from "@articles-media/articles-dev-box/DarkModeHandler";
 import { useStore } from '@/hooks/useStore';
+import { useSocketStore } from '@/hooks/useSocketStore';
 import GlobalBody from '@articles-media/articles-dev-box/GlobalBody';
 import ToontownModeHandler from '@articles-media/articles-dev-box/ToontownModeHandler';
 import { useHotkeys } from "react-hotkeys-hook";
@@ -12,7 +13,7 @@ import useTouchControlsStore from "@/hooks/useTouchControlsStore";
 import GlobalClientModals from "@articles-media/articles-dev-box/GlobalClientModals";
 import HotkeyHandler from "@articles-media/articles-dev-box/HotkeyHandler";
 
-export default function LayoutClient({ children }) {
+export default function LayoutClient() {
 
     const darkMode = useStore((state) => state?.darkMode);
 
@@ -36,7 +37,7 @@ export default function LayoutClient({ children }) {
                     useStore={useStore}
                     useAudioStore={useAudioStore}
                     useTouchControlsStore={useTouchControlsStore}
-                    // useSocketStore={useSocketStore}
+                    useSocketStore={useSocketStore}
                     packageInfo={packageInfo}
                     settingsModalConfig={{
                         tabs: {
