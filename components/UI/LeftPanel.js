@@ -15,9 +15,28 @@ function LeftPanelContent() {
 
     return (
         <Box sx={{ width: "100%" }}>
-            <Card sx={{ bgcolor: "game.card", backgroundImage: "none", fontSize: "0.875rem", border: 1, borderColor: "divider" }}>
-                <CardContent sx={{ p: 1, "&:last-child": { pb: 1 }, display: "flex", flexWrap: "wrap" }}>
-                    <GameMenuPrimaryButtonGroup useStore={useStore} type="GameMenu" useRouter={useRouter} />
+            <Card
+                sx={{
+                    bgcolor: "game.card",
+                    backgroundImage: "none",
+                    fontSize: "0.875rem",
+                    border: 1,
+                    borderColor: "divider",
+                }}
+            >
+                <CardContent
+                    sx={{
+                        p: 1,
+                        "&:last-child": { pb: 1 },
+                        display: "flex",
+                        flexWrap: "wrap",
+                    }}
+                >
+                    <GameMenuPrimaryButtonGroup
+                        useStore={useStore}
+                        type="GameMenu"
+                        useRouter={useRouter}
+                    />
                 </CardContent>
             </Card>
             <GameDetailsPanel />

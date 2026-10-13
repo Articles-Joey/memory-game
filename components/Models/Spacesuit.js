@@ -4,70 +4,181 @@ Command: npx gltfjsx@6.5.0 models\Spacesuit.gltf --output output\Spacesuit.js --
 Files: models\Spacesuit.gltf [3.72MB] > E:\Downloads\men\output\Spacesuit-transformed.glb [788.18KB] (79%)
 */
 
-import React, { useEffect } from 'react'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
+import React, { useEffect } from "react";
+import { useGraph } from "@react-three/fiber";
+import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
-const link = `${process.env.NEXT_PUBLIC_CDN}games/Assets/Quaternius/men/Spacesuit-transformed.glb`
+const link = `${process.env.NEXT_PUBLIC_CDN}games/Assets/Quaternius/men/Spacesuit-transformed.glb`;
 
-export function Model(props) {
-  const group = React.useRef()
-  const { scene, animations } = useGLTF(link)
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone)
-  const { actions } = useAnimations(animations, group)
+export function Model({ brightness = 0, ...props }) {
+    const group = React.useRef();
+    const { scene, animations } = useGLTF(link);
+    const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const { nodes, materials } = useGraph(clone);
+    const { actions } = useAnimations(animations, group);
+    const sourceMaterial = materials.PaletteMaterial001;
+    const playerMaterial = React.useMemo(() => {
+        if (brightness <= 0) return sourceMaterial;
+        const material = sourceMaterial.clone();
+        // Add a texture-colored brightness floor without emitting light into the scene.
+        material.emissive.copy(material.color);
+        material.emissiveMap = material.map;
+        material.emissiveIntensity = brightness;
+        return material;
+    }, [sourceMaterial, brightness]);
 
-  const { previewConfig } = props
+    useEffect(
+        () => () => {
+            if (playerMaterial !== sourceMaterial) playerMaterial.dispose();
+        },
+        [playerMaterial, sourceMaterial],
+    );
 
+    const { previewConfig } = props;
 
-  // Track the last played action to avoid rapid replays
-  const lastAction = React.useRef();
+    // Track the last played action to avoid rapid replays
+    const lastAction = React.useRef();
 
-  useEffect(() => {
-    if (!actions) return;
-    const nextAction = props.action || 'Idle';
-    if (lastAction.current === nextAction) return;
+    useEffect(() => {
+        if (!actions) return;
+        const nextAction = props.action || "Idle";
+        if (lastAction.current === nextAction) return;
 
-    // Stop all actions
-    Object.values(actions).forEach((a) => a.stop());
-    // Play the new action
-    if (actions[nextAction]) {
-      actions[nextAction].play();
-      lastAction.current = nextAction;
-    }
-  }, [actions, props.action]);
+        // Stop all actions
+        Object.values(actions).forEach((a) => a.stop());
+        // Play the new action
+        if (actions[nextAction]) {
+            actions[nextAction].play();
+            lastAction.current = nextAction;
+        }
+    }, [actions, props.action]);
 
-  return (
-    <group ref={group} {...props} dispose={null}>
-      <group name="Scene">
-        <group name="CharacterArmature">
-          <primitive object={nodes.Root} />
+    return (
+        <group
+            ref={group}
+            {...props}
+            dispose={null}
+        >
+            <group name="Scene">
+                <group name="CharacterArmature">
+                    <primitive object={nodes.Root} />
+                </group>
+                <group name="SpaceSuit_Body">
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube002"
+                        geometry={nodes.Cube002.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube002.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube002_1"
+                        geometry={nodes.Cube002_1.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube002_1.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube002_2"
+                        geometry={nodes.Cube002_2.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube002_2.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube002_3"
+                        geometry={nodes.Cube002_3.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube002_3.skeleton}
+                    />
+                </group>
+                <group name="SpaceSuit_Feet">
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube047"
+                        geometry={nodes.Cube047.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube047.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube047_1"
+                        geometry={nodes.Cube047_1.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube047_1.skeleton}
+                    />
+                </group>
+                <group name="SpaceSuit_Head">
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube049"
+                        geometry={nodes.Cube049.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube049.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube049_1"
+                        geometry={nodes.Cube049_1.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube049_1.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube049_2"
+                        geometry={nodes.Cube049_2.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube049_2.skeleton}
+                    />
+                </group>
+                <group name="SpaceSuit_Legs">
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube046"
+                        geometry={nodes.Cube046.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube046.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube046_1"
+                        geometry={nodes.Cube046_1.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube046_1.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube046_2"
+                        geometry={nodes.Cube046_2.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube046_2.skeleton}
+                    />
+                    <skinnedMesh
+                        castShadow
+                        receiveShadow
+                        name="Cube046_3"
+                        geometry={nodes.Cube046_3.geometry}
+                        material={playerMaterial}
+                        skeleton={nodes.Cube046_3.skeleton}
+                    />
+                </group>
+            </group>
         </group>
-        <group name="SpaceSuit_Body">
-          <skinnedMesh name="Cube002" geometry={nodes.Cube002.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube002.skeleton} />
-          <skinnedMesh name="Cube002_1" geometry={nodes.Cube002_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube002_1.skeleton} />
-          <skinnedMesh name="Cube002_2" geometry={nodes.Cube002_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube002_2.skeleton} />
-          <skinnedMesh name="Cube002_3" geometry={nodes.Cube002_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube002_3.skeleton} />
-        </group>
-        <group name="SpaceSuit_Feet">
-          <skinnedMesh name="Cube047" geometry={nodes.Cube047.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube047.skeleton} />
-          <skinnedMesh name="Cube047_1" geometry={nodes.Cube047_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube047_1.skeleton} />
-        </group>
-        <group name="SpaceSuit_Head">
-          <skinnedMesh name="Cube049" geometry={nodes.Cube049.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube049.skeleton} />
-          <skinnedMesh name="Cube049_1" geometry={nodes.Cube049_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube049_1.skeleton} />
-          <skinnedMesh name="Cube049_2" geometry={nodes.Cube049_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube049_2.skeleton} />
-        </group>
-        <group name="SpaceSuit_Legs">
-          <skinnedMesh name="Cube046" geometry={nodes.Cube046.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube046.skeleton} />
-          <skinnedMesh name="Cube046_1" geometry={nodes.Cube046_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube046_1.skeleton} />
-          <skinnedMesh name="Cube046_2" geometry={nodes.Cube046_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube046_2.skeleton} />
-          <skinnedMesh name="Cube046_3" geometry={nodes.Cube046_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube046_3.skeleton} />
-        </group>
-      </group>
-    </group>
-  )
+    );
 }
 
-useGLTF.preload(link)
+useGLTF.preload(link);

@@ -1,6 +1,6 @@
 # Memory Game
 
-![Game Preview](/public/img/preview.webp)
+![Game Preview](/public/img/previews/preview.webp)
 
 The objective is to clear the board by matching two cards one-by-one within the time limit. The player must flip the cards over to reveal an image and find a matching card hidden somewhere on the board. Only two cards can be flipped at once.
 
@@ -16,6 +16,20 @@ npm run dev
 
 Aiming to have multiplayer via P2P and Websockets. Websocket backend code is not in this repo or available at this time. P2P code will be included here.
 
+## Previews
+
+![Game Preview](/public/img/previews/toontown-preview.webp)
+
+![Game Preview](/public/img/previews/zoomed-in.webp)
+
+![Game Preview](/public/img/previews/toontown-zoomed-in.webp)
+
+![Game Preview](/public/img/previews/zoomed-out.webp)
+
+![Game Preview](/public/img/previews/toontown-zoomed-out.webp)
+
+![Game Preview](/public/img/previews/dark.webp)
+
 ## Inspiration
 
 This game was inspired by a mini game inside the game Toontown Online.
@@ -25,6 +39,6 @@ This game was inspired by a mini game inside the game Toontown Online.
 ## Attributions
 
 [Cards Icon](https://www.flaticon.com/free-icon/card-games_2118338?term=card&page=1&position=41&origin=tag&related_id=2118338)  
-[Grass Texture - Poliigon]()  
-[Deer Model - Quaternius]()  
-[Player Model]()  
+[Grass Texture - Poliigon](<>)  
+[Deer Model - Quaternius](<>)  
+[Player Model](<>)

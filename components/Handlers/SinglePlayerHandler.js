@@ -1,220 +1,183 @@
 "use client";
-// Attempting a socket server first architecture, but this component will handle the single player mode and local game state management.
 
-import { v4 as uuidv4 } from 'uuid';
-import { useEffect } from "react"
-import { useStore } from "@/hooks/useStore"
-import { useSocketStore } from "@/hooks/useSocketStore"
-import { useSearchParams } from "next/navigation";
-import { useGameStore } from "@/hooks/useGameStore";
-// import { useCannonStore } from '@/hooks/useCannonStore';
-import { useScoreStore } from '@/hooks/useScoreStore';
+import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useStore } from "@/hooks/useStore";
+import { useGameStore, generateMatchPairs } from "@/hooks/useGameStore";
+import { useScoreStore } from "@/hooks/useScoreStore";
+import SinglePlayerGameOverDialog from "@/components/UI/SinglePlayerGameOverDialog";
+
+function elapsedSeconds(gameState, now = Date.now()) {
+    return Number.isFinite(gameState.startedAt)
+        ? Math.max(0, Math.floor((now - gameState.startedAt) / 1000))
+        : (gameState.timer ?? 0);
+}
+
+function timeLimit(gameState) {
+    return Number.isFinite(gameState.maxTime) && gameState.maxTime > 0
+        ? gameState.maxTime
+        : Infinity;
+}
+
+function finishRound(simulatedResult = null) {
+    const store = useGameStore.getState();
+    const current = store.gameState;
+    if (
+        !simulatedResult &&
+        (current.status !== "In Progress" || current.result)
+    )
+        return;
+    const cards = Array.isArray(current.matchPairs) ? current.matchPairs : [];
+    const completed =
+        Boolean(simulatedResult) ||
+        (cards.length > 0 && cards.every((card) => card.matched));
+    const now = Date.now();
+    const result = {
+        id:
+            simulatedResult && current.result
+                ? crypto.randomUUID()
+                : current.roundId || crypto.randomUUID(),
+        time:
+            simulatedResult?.time ??
+            Math.min(elapsedSeconds(current, now), timeLimit(current)),
+        flips: simulatedResult?.flips ?? current.flipCount ?? 0,
+        matchedPairs: Math.floor(
+            (simulatedResult
+                ? cards.length
+                : cards.filter((card) => card.matched).length) / 2,
+        ),
+        totalPairs: Math.floor(cards.length / 2),
+        completed,
+        playedAt: new Date(now).toISOString(),
+    };
+    // Mark the round finished before notifying either store, preventing duplicate saves.
+    store.setGameState({
+        ...current,
+        status: "Game Over",
+        roundId: result.id,
+        timer: result.time,
+        flipCount: result.flips,
+        ...(simulatedResult && {
+            startedAt: now - result.time * 1000,
+            matchPairs: cards.map((card) => ({
+                ...card,
+                matched: true,
+                flipped: false,
+            })),
+            flippedCards: [],
+        }),
+        endedAt: now,
+        result,
+        resultDialogOpen: true,
+    });
+    const scores = useScoreStore.getState();
+    scores.addMaxScore(result);
+    scores.addRecentScore(result);
+}
+
+export function forceSinglePlayerGameOver() {
+    if (process.env.NODE_ENV !== "development") return;
+    const current = useGameStore.getState().gameState;
+    if (!current.players?.some((player) => player.id === "local")) return;
+    const cards = Array.isArray(current.matchPairs) ? current.matchPairs : [];
+    if (!cards.length) return;
+    const limit = timeLimit(current);
+    const maxSeconds = Number.isFinite(limit)
+        ? Math.max(1, Math.floor(limit))
+        : 180;
+    const minimumFlips = Math.ceil(cards.length / 2) * 2;
+    finishRound({
+        time: 1 + Math.floor(Math.random() * maxSeconds),
+        flips:
+            minimumFlips +
+            2 * Math.floor(Math.random() * (cards.length * 2 + 1)),
+    });
+}
 
 export default function SinglePlayerHandler() {
-
-    const searchParams = useSearchParams()
-    const params = Object.fromEntries(searchParams.entries());
-    const { server, server_type } = params
-
-    const socket = useSocketStore(state => state.socket)
-
-    const nickname = useStore((state) => state.nickname)
-
-    const gameState = useGameStore(state => state.gameState)
-    const players = useGameStore(state => state.gameState.players)
-    const status = useGameStore(state => state.gameState.status)
-    const setGameState = useGameStore(state => state.setGameState)
-    const flipCount = useGameStore(state => state.gameState.flipCount)
-    const addTimer = useGameStore(state => state.addTimer)
-    const generateMatchPairs = useGameStore(state => state.generateMatchPairs)
-
-    // const setRandomGoalLocation = useCannonStore(state => state.setRandomGoalLocation);
-
-    const playersLength = gameState?.players?.length || 0;
-
-    // const playersTotalScore = players?.reduce((total, player) => total + (player.score || 0), 0) || 0;
-
-    // useEffect(() => {
-
-    //     if (server_type == "single-player") {
-
-    //         setRandomGoalLocation();
-
-    //     }
-
-    // }, [playersTotalScore, setRandomGoalLocation, server_type])
-
-    const playerLocation = useGameStore(state => state.playerLocation)
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const isSinglePlayer = pathname === "/play" && !searchParams.get("server");
+    const nickname = useStore((state) => state.nickname);
+    const status = useGameStore((state) => state.gameState.status);
+    const playersLength = useGameStore(
+        (state) => state.gameState.players?.length ?? 0,
+    );
+    const matchPairs = useGameStore((state) => state.gameState.matchPairs);
+    const playerLocation = useGameStore((state) => state.playerLocation);
 
     useEffect(() => {
-
-        if (playersLength == 0) return
-        if (server) return
-
-        const gameState = useGameStore.getState().gameState;
-        setGameState({
-            ...gameState,
-            players: [
-                ...gameState?.players?.map(p => {
-                    if (p.id === 'local') {
-                        return {
-                            ...p,
-                            position: playerLocation,
-                            rotation: 0,
-                        }
-                    }
-                    return p;
-                }),
-            ]
-        })
-    }, [
-        playerLocation, playersLength, server, setGameState
-    ])
-
-    useEffect(() => {
-
-        console.warn("SinglePlayerHandler - Player length check", status)
-
-        if (
-            (players?.length || 0) === 0
-            &&
-            status !== 'Game Over'
-            &&
-            !status
-        ) {
-
-            console.warn("No players found in game state, adding local player.")
-
-            setGameState({
-                players: [{
-                    id: 'local',
-                    nickname: nickname,
-                    health: 5,
-                }],
-                status: 'In Lobby',
-                timer: 0,
-                flipCount: 0,
-                // matchPairs: generateMatchPairs(4, 8),
-                maxTime: process.env.NODE_ENV !== 'production' ? 10 : 60,
-                // fallingItems: (() => {
-                //     const items = [];
-                //     for (let i = 0; i < 3; i++) {
-                //         items.push(generateFallingItem(items));
-                //     }
-                //     return items;
-                // })()
-            });
-
-        }
-
-    }, [players?.length, status, nickname, setGameState, generateMatchPairs])
+        if (!isSinglePlayer) return;
+        const store = useGameStore.getState();
+        const current = store.gameState;
+        if (current.players?.some((player) => player.id === "local")) return;
+        store.setGameState({
+            ...current,
+            players: [{ id: "local", nickname, health: 5 }],
+            status: "In Lobby",
+            timer: 0,
+            flipCount: 0,
+            maxTime: current.maxTime ?? 150,
+            matchPairs:
+                !current.players?.length &&
+                Array.isArray(current.matchPairs) &&
+                current.matchPairs.length
+                    ? current.matchPairs
+                    : generateMatchPairs(4, 8),
+            roundId: crypto.randomUUID(),
+            startedAt: null,
+            endedAt: null,
+            result: null,
+            resultDialogOpen: false,
+        });
+    }, [isSinglePlayer, nickname, playersLength, status]);
 
     useEffect(() => {
-
-        console.warn("SinglePlayerHandler - Status change detected", status)
-
-        let interval;
-
-        if (status === "In Progress") {
-
-            // const {
-            //     position: myPosition,
-            //     playerRotation: myRotation,
-            //     action: myAction,
-            //     projectiles: localProjectiles
-            // } = useCannonStore.getState();
-
-            // generateMoveSequence(gameState, setGameState);
-
-            interval = setInterval(() => {
-                const currentGameState = useGameStore.getState().gameState;
-
-                if (currentGameState.status !== 'In Progress') {
-                    clearInterval(interval);
-                    return;
-                }
-
-                const currentGameTimer = currentGameState.timer ?? 0;
-
-                const now = Date.now();
-
-                if (
-                    currentGameTimer
-                    >=
-                    currentGameState.maxTime
-                    // 5
-                ) {
-
-                    if (
-                        currentGameState.players?.[0]?.score &&
-                        currentGameState.players?.[0]?.score > useScoreStore.getState().maxScore
-                    ) {
-                        useScoreStore.getState().setMaxScore(currentGameState.players?.[0]?.score || 0)
-                    }
-
-                    useScoreStore.getState().addRecentScore(currentGameState.players?.[0]?.score || 0)
-
-                    setGameState({
-                        ...currentGameState,
-                        status: 'Game Over',
-                        timer: 0
-                    });
-
-                    // useStore.getState().setShowGameOverModal({
-                    //     rankings: [],
-                    //     winner: {
-                    //         nickname: "123",
-                    //     }
-                    // })
-
-                } else {
-                    setGameState({
-                        ...currentGameState,
-                        timer: currentGameTimer + 1,
-                        // ...(currentGameState.fallingItems ?
-                        //     {
-                        //         fallingItems: currentGameState.fallingItems.reduce((acc, item) => {
-                        //             if (now - item.spawnedAt > 5000) {
-                        //                 acc.push(generateFallingItem(acc));
-                        //             } else {
-                        //                 // console.log("Not older", now - item.spawnedAt)
-                        //                 acc.push(item);
-                        //             }
-                        //             return acc;
-                        //         }, [])
-                        //     }
-                        //     :
-                        //     {}
-                        // ),
-                    });
-                }
-            }, 1000);
-
-        }
-
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-
-    }, [status, setGameState])
+        if (!isSinglePlayer || !playerLocation) return;
+        const store = useGameStore.getState();
+        const current = store.gameState;
+        if (!current.players?.length) return;
+        store.setGameState({
+            ...current,
+            players: current.players.map((player) =>
+                player.id === "local"
+                    ? { ...player, position: playerLocation, rotation: 0 }
+                    : player,
+            ),
+        });
+    }, [isSinglePlayer, playerLocation, playersLength]);
 
     useEffect(() => {
-
-        if (flipCount === 0) return
-
-        const gameTimer = setInterval(() => {
-            if (useGameStore.getState().gameState.flipCount > 0) {
-                addTimer()
+        if (!isSinglePlayer || status !== "In Progress") return;
+        const tick = () => {
+            const store = useGameStore.getState();
+            const current = store.gameState;
+            if (current.status !== "In Progress" || current.result) return;
+            const elapsed = elapsedSeconds(current);
+            const completed =
+                current.matchPairs?.length > 0 &&
+                current.matchPairs.every((card) => card.matched);
+            if (completed || elapsed >= timeLimit(current)) {
+                finishRound();
+            } else if (elapsed !== current.timer) {
+                store.setGameState({ ...current, timer: elapsed });
             }
-        }, 1000)
+        };
+        tick();
+        const interval = setInterval(tick, 250);
+        return () => clearInterval(interval);
+    }, [isSinglePlayer, status]);
 
-        return () => clearInterval(gameTimer)
+    useEffect(() => {
+        if (
+            isSinglePlayer &&
+            status === "In Progress" &&
+            Array.isArray(matchPairs) &&
+            matchPairs.length > 0 &&
+            matchPairs.every((card) => card.matched)
+        )
+            finishRound();
+    }, [isSinglePlayer, status, matchPairs]);
 
-    }, [flipCount, addTimer])
-
-    // if (server) {
-    //     console.warn("Not single player mode, server param found:", server)
-    //     return null;
-    // }
-
+    return isSinglePlayer ? <SinglePlayerGameOverDialog /> : null;
 }

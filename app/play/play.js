@@ -20,11 +20,14 @@ export default function GamePage() {
 
     return (
         <Box
-            className={classNames(`${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`, {
-                "menu-open": showMenu,
-                fullscreen: isFullscreen,
-                "show-sidebar": sidebar,
-            })}
+            className={classNames(
+                `${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`,
+                {
+                    "menu-open": showMenu,
+                    fullscreen: isFullscreen,
+                    "show-sidebar": sidebar,
+                },
+            )}
             id={`${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`}
             sx={{
                 position: "relative",
@@ -41,7 +44,10 @@ export default function GamePage() {
                     height: "100%",
                     zIndex: 0,
                     overflow: "hidden",
-                    "& img": { filter: "blur(2px) brightness(0.8)", transform: "scale(1.05)" },
+                    "& img": {
+                        filter: "blur(2px) brightness(0.8)",
+                        transform: "scale(1.05)",
+                    },
                 },
                 "& .container": { position: "relative", zIndex: 1 },
                 "& .debug-info, & .game-info": {
@@ -50,7 +56,11 @@ export default function GamePage() {
                     height: "100vh",
                     "& .card, & .MuiCard-root": { height: "100%" },
                 },
-                "& .game": { p: "0.5rem 1rem", display: "flex", justifyContent: "center" },
+                "& .game": {
+                    p: "0.5rem 1rem",
+                    display: "flex",
+                    justifyContent: "center",
+                },
                 "& .game-panel": { width: "100%" },
                 "& .controls-overlay": {
                     position: "fixed",
@@ -61,24 +71,36 @@ export default function GamePage() {
                     width: 160,
                     height: 160,
                     zIndex: 3,
-                    "& .fire-button, & .up-button, & .down-button, & .left-button, & .right-button": {
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                    },
+                    "& .fire-button, & .up-button, & .down-button, & .left-button, & .right-button":
+                        {
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                        },
                     "& .fire-button": { bgcolor: "red" },
-                    "& .left-button": { transform: "translate(calc(-50% - 50px), -50%)" },
-                    "& .right-button": { transform: "translate(calc(-50% + 50px), -50%)" },
-                    "& .up-button": { transform: "translate(-50%, calc(-50% - 50px))" },
-                    "& .down-button": { transform: "translate(-50%, calc(-50% + 50px))" },
+                    "& .left-button": {
+                        transform: "translate(calc(-50% - 50px), -50%)",
+                    },
+                    "& .right-button": {
+                        transform: "translate(calc(-50% + 50px), -50%)",
+                    },
+                    "& .up-button": {
+                        transform: "translate(-50%, calc(-50% - 50px))",
+                    },
+                    "& .down-button": {
+                        transform: "translate(-50%, calc(-50% + 50px))",
+                    },
                 },
             }}
         >
             <GameMenu
                 useStore={useStore}
                 LeftPanelContent={LeftPanelContent}
-                menuBarConfig={{ style: "Corner Button", menuBarButtonPosition: "Left" }}
+                menuBarConfig={{
+                    style: "Corner Button",
+                    menuBarButtonPosition: "Left",
+                }}
                 sidebarConfig={{ style: "Static Panel" }}
             />
             <Box

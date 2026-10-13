@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useContext, useRef, memo } from 'react'
+import { useState, useEffect, useContext, useRef, memo } from "react";
 
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from "next/navigation";
 
 // Import session to detect change to sign in and sign out of socket
 // import { useSession } from 'lib/hooks'
@@ -13,24 +13,23 @@ import { useRouter, usePathname } from 'next/navigation';
 // import axios from "axios";
 
 import { useSocketStore } from "@/hooks/useSocketStore";
-import { useStore } from '@/hooks/useStore';
-import { useGameStore } from '@/hooks/useGameStore';
+import { useStore } from "@/hooks/useStore";
+import { useGameStore } from "@/hooks/useGameStore";
 
 // SocketContextControl
 export default function SocketLogicHandler(props) {
-
-    const router = useRouter()
-    const pathname = usePathname()
+    const router = useRouter();
+    const pathname = usePathname();
 
     // const userReduxState = useSelector((state) => state.auth.user_details)
 
-    const socket = useSocketStore((state) => state.socket)
-    const connectSocket = useSocketStore((state) => state.connectSocket)
-    const disconnectSocket = useSocketStore((state) => state.disconnectSocket)
-    const setTotalUsers = useSocketStore((state) => state.setTotalUsers)
+    const socket = useSocketStore((state) => state.socket);
+    const connectSocket = useSocketStore((state) => state.connectSocket);
+    const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
+    const setTotalUsers = useSocketStore((state) => state.setTotalUsers);
 
-    const connected = useSocketStore((state) => state.connected)
-    const setConnected = useSocketStore((state) => state.setConnected)
+    const connected = useSocketStore((state) => state.connected);
+    const setConnected = useSocketStore((state) => state.setConnected);
 
     // const {
     //     socket,
@@ -44,10 +43,10 @@ export default function SocketLogicHandler(props) {
     //     connectSocket: state.connectSocket,
     // }));
 
-    const [lastPage, setLastPage] = useState('');
+    const [lastPage, setLastPage] = useState("");
 
     // const [initialConnectAttempt, setInitialConnectAttempt] = useState(false);
-    const initialized = useRef(false)
+    const initialized = useRef(false);
 
     // const { session, status } = useSession()
 
@@ -74,9 +73,8 @@ export default function SocketLogicHandler(props) {
     // }, [initialConnectAttempt])
 
     useEffect(() => {
-
         function userCount(value) {
-            setTotalUsers(value)
+            setTotalUsers(value);
             // setSocketData(prevState => ({
             //     ...prevState,
             //     total_users: value
@@ -85,13 +83,13 @@ export default function SocketLogicHandler(props) {
 
         // Makes sure connect is only called once during reactStrictMode
         if (!initialized.current) {
-            initialized.current = true
-            connectSocket()
+            initialized.current = true;
+            connectSocket();
         }
 
         // if (!socket.connected) return
 
-        socket.on('connect', () => {
+        socket.on("connect", () => {
             console.log("[📶Socket] Connected to server!");
             // setSocketData(prevState => ({
             //     ...prevState,
@@ -103,7 +101,7 @@ export default function SocketLogicHandler(props) {
             // socket.emit( 'isOnline', socketsToCheckIfOnline )
         });
 
-        socket.on('disconnect', () => {
+        socket.on("disconnect", () => {
             console.log("[📶Socket] Disconnected from server!");
             // setSocketData(prevState => ({
             //     ...prevState,
@@ -114,10 +112,10 @@ export default function SocketLogicHandler(props) {
             // setSocketLoggedIn(false);
         });
 
-        socket.on('force-page', (data) => {
+        socket.on("force-page", (data) => {
             console.log("[📶Socket] You are being forced to a new page!");
-            console.log(data)
-            router.push(data.page)
+            console.log(data);
+            router.push(data.page);
             // setSocketData(prevState => ({
             //     ...prevState,
             //     connected: false,
@@ -127,78 +125,84 @@ export default function SocketLogicHandler(props) {
             // setSocketLoggedIn(false);
         });
 
-        socket.on('roomsList', (value) => {
+        socket.on("roomsList", (value) => {
             console.log("[📶Socket] roomsList", value);
         });
 
-        socket.emit('getUserCount');
+        socket.emit("getUserCount");
 
-        socket.on('userCount', userCount);
+        socket.on("userCount", userCount);
 
-        console.log(`[📶 Socket] Page change emit`)
-        socket.emit('activePage', pathname);
+        console.log(`[📶 Socket] Page change emit`);
+        socket.emit("activePage", pathname);
 
-        socket.on(`game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`, function (msg) {
-            const lobbyDetails = useStore.getState().lobbyDetails
-            const setLobbyDetails = useStore.getState().setLobbyDetails
+        socket.on(
+            `game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`,
+            function (msg) {
+                const lobbyDetails = useStore.getState().lobbyDetails;
+                const setLobbyDetails = useStore.getState().setLobbyDetails;
 
-            console.log(`game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`, msg)
+                console.log(
+                    `game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`,
+                    msg,
+                );
 
-            if (JSON.stringify(msg) !== JSON.stringify(lobbyDetails)) {
-                setLobbyDetails(msg)
-            }
-        });
+                if (JSON.stringify(msg) !== JSON.stringify(lobbyDetails)) {
+                    setLobbyDetails(msg);
+                }
+            },
+        );
 
         socket.on(`game-update`, function (msg) {
-            console.log(`game-update`, msg)
+            console.log(`game-update`, msg);
             // const setPlayers = useIceSlideStore.getState().setPlayers
             // setPlayers(msg.players)
             // const setItems = useIceSlideStore.getState().setItems
             // setItems(msg.items)
-            const setGameState = useGameStore.getState().setGameState
-            setGameState(msg)
+            const setGameState = useGameStore.getState().setGameState;
+            setGameState(msg);
         });
 
         socket.on(`game-over`, function (msg) {
-            console.log(`game-over`, msg)
-            const setShowGameOverModal = useStore.getState().setShowGameOverModal
-            setShowGameOverModal(msg)
+            console.log(`game-over`, msg);
+            const setShowGameOverModal =
+                useStore.getState().setShowGameOverModal;
+            setShowGameOverModal(msg);
         });
 
         // router.events.on('routeChangeStart', handleRouteChange)
 
         return () => {
-            socket.off('connect');
-            socket.off('disconnect');
-            socket.off('force-page');
-            socket.off('roomsList');
-            socket.off(`game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`);
-            socket.off('userCount', userCount);
+            socket.off("connect");
+            socket.off("disconnect");
+            socket.off("force-page");
+            socket.off("roomsList");
+            socket.off(
+                `game:${process.env.NEXT_PUBLIC_GAME_KEY}-landing-details`,
+            );
+            socket.off("userCount", userCount);
             socket.off(`game-update`);
             socket.off(`game-over`);
             // router.events.off('routeChangeStart', handleRouteChange)
         };
-
     }, [socket, pathname, connectSocket, setConnected, setTotalUsers, router]);
 
     useEffect(() => {
-
         // https://github.com/vercel/next.js/discussions/52568
 
         // return
 
         const handleRouteChange = (url) => {
-
             if (url == lastPage) {
-                console.log("Same page, ignore event")
-                return
+                console.log("Same page, ignore event");
+                return;
             }
 
-            setLastPage(prev => {
-                console.log("Prev", prev)
-                console.log("url", url)
-                return url
-            })
+            setLastPage((prev) => {
+                console.log("Prev", prev);
+                console.log("url", url);
+                return url;
+            });
 
             // console.log(
             //     `App is changing to ${url} ${shallow ? 'with' : 'without'
@@ -206,15 +210,14 @@ export default function SocketLogicHandler(props) {
             // );
 
             if (socket?.connected) {
-                console.log(`[📶 Socket] Page change emit`)
-                socket.emit('activePage', url);
+                console.log(`[📶 Socket] Page change emit`);
+                socket.emit("activePage", url);
             }
-
         };
 
         if (pathname !== lastPage) {
-            console.log("User is at a new pathname")
-            handleRouteChange(pathname)
+            console.log("User is at a new pathname");
+            handleRouteChange(pathname);
         }
 
         // router.events.on('routeChangeStart', handleRouteChange);
@@ -224,7 +227,6 @@ export default function SocketLogicHandler(props) {
         // return () => {
         //     router.events.off('routeChangeStart', handleRouteChange);
         // };
-
     }, [pathname, lastPage, socket]);
 
     // useEffect(() => {
@@ -234,22 +236,21 @@ export default function SocketLogicHandler(props) {
     // }, [session])
 
     useEffect(() => {
+        return;
 
-        return
-
-        console.log("socketData.connected")
+        console.log("socketData.connected");
         // console.log("Socket authenticated:", socket.authenticated)
         // console.log(userReduxState._id)
 
         if (
-            socket?.connected
-            &&
+            socket?.connected &&
             !socket?.authenticated
-            // && 
+            // &&
             // userReduxState._id
         ) {
-
-            console.log("[📶Socket] Socket is now connected and not authenticated with a logged in user!")
+            console.log(
+                "[📶Socket] Socket is now connected and not authenticated with a logged in user!",
+            );
 
             // return
 
@@ -280,9 +281,7 @@ export default function SocketLogicHandler(props) {
             //     socket.emit('login', { userId: userReduxState?._id })
             //     // socket.emit( 'isOnline', socketsToCheckIfOnline )
             // });
-
         }
-
     }, [
         socket?.connected,
         socket?.authenticated,

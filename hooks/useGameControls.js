@@ -1,6 +1,12 @@
-import { useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
-import { useIceSlideStore } from '@/hooks/useIceSlideStore';
-import { useSocketStore } from '@/hooks/useSocketStore';
+import {
+    useRef,
+    useEffect,
+    useLayoutEffect,
+    useCallback,
+    useMemo,
+} from "react";
+import { useIceSlideStore } from "@/hooks/useIceSlideStore";
+import { useSocketStore } from "@/hooks/useSocketStore";
 
 /**
  * Returns stable action callbacks for game controls.
@@ -8,22 +14,33 @@ import { useSocketStore } from '@/hooks/useSocketStore';
  * For held input (keyboard or touch), call the action repeatedly via a RAF loop.
  */
 export function useGameControls({ server } = {}) {
-
-    const setHitRotation = useIceSlideStore(state => state.setHitRotation);
-    const setHitPower = useIceSlideStore(state => state.setHitPower);
+    const setHitRotation = useIceSlideStore((state) => state.setHitRotation);
+    const setHitPower = useIceSlideStore((state) => state.setHitPower);
 
     const hitRotationRef = useRef(useIceSlideStore.getState().hitRotation);
     const hitPowerRef = useRef(useIceSlideStore.getState().hitPower);
 
-    useEffect(() => useIceSlideStore.subscribe(
-        state => state.hitRotation,
-        val => { hitRotationRef.current = val; }
-    ), []);
+    useEffect(
+        () =>
+            useIceSlideStore.subscribe(
+                (state) => state.hitRotation,
+                (val) => {
+                    hitRotationRef.current = val;
+                },
+            ),
+        [],
+    );
 
-    useEffect(() => useIceSlideStore.subscribe(
-        state => state.hitPower,
-        val => { hitPowerRef.current = val; }
-    ), []);
+    useEffect(
+        () =>
+            useIceSlideStore.subscribe(
+                (state) => state.hitPower,
+                (val) => {
+                    hitPowerRef.current = val;
+                },
+            ),
+        [],
+    );
 
     const emitAim = useRef(() => {});
     useEffect(() => {
@@ -33,7 +50,7 @@ export function useGameControls({ server } = {}) {
             const r = hitRotationRef.current;
             const p = hitPowerRef.current;
             if (r !== lastR || p !== lastP) {
-                useSocketStore.getState().socket?.emit('game:ice-slide:aim', {
+                useSocketStore.getState().socket?.emit("game:ice-slide:aim", {
                     hitRotation: r,
                     hitPower: p,
                     server,
@@ -44,43 +61,52 @@ export function useGameControls({ server } = {}) {
         };
     }, [server]);
 
-    const actions = useMemo(() => ({
-        rotateRight() {
-            const next = hitRotationRef.current >= 360 ? 0 : hitRotationRef.current + 1;
-            setHitRotation(next);
-            hitRotationRef.current = next;
-            emitAim.current();
-        },
-        rotateLeft() {
-            const next = hitRotationRef.current <= 0 ? 360 : hitRotationRef.current - 1;
-            setHitRotation(next);
-            hitRotationRef.current = next;
-            emitAim.current();
-        },
-        powerUp() {
-            if (hitPowerRef.current >= 100) return;
-            const next = hitPowerRef.current + 1;
-            setHitPower(next);
-            hitPowerRef.current = next;
-            emitAim.current();
-        },
-        powerDown() {
-            if (hitPowerRef.current <= 0) return;
-            const next = hitPowerRef.current - 1;
-            setHitPower(next);
-            hitPowerRef.current = next;
-            emitAim.current();
-        },
-        // launch() {
-        //     const socket = useSocketStore.getState().socket;
-        //     socket?.emit('game:ice-slide:move', {
-        //         hitRotation: hitRotationRef.current,
-        //         hitPower: hitPowerRef.current,
-        //         server,
-        //     });
-        //     setLaunchPlayer(true);
-        // },
-    }), [setHitPower, setHitRotation]);
+    const actions = useMemo(
+        () => ({
+            rotateRight() {
+                const next =
+                    hitRotationRef.current >= 360
+                        ? 0
+                        : hitRotationRef.current + 1;
+                setHitRotation(next);
+                hitRotationRef.current = next;
+                emitAim.current();
+            },
+            rotateLeft() {
+                const next =
+                    hitRotationRef.current <= 0
+                        ? 360
+                        : hitRotationRef.current - 1;
+                setHitRotation(next);
+                hitRotationRef.current = next;
+                emitAim.current();
+            },
+            powerUp() {
+                if (hitPowerRef.current >= 100) return;
+                const next = hitPowerRef.current + 1;
+                setHitPower(next);
+                hitPowerRef.current = next;
+                emitAim.current();
+            },
+            powerDown() {
+                if (hitPowerRef.current <= 0) return;
+                const next = hitPowerRef.current - 1;
+                setHitPower(next);
+                hitPowerRef.current = next;
+                emitAim.current();
+            },
+            // launch() {
+            //     const socket = useSocketStore.getState().socket;
+            //     socket?.emit('game:ice-slide:move', {
+            //         hitRotation: hitRotationRef.current,
+            //         hitPower: hitPowerRef.current,
+            //         server,
+            //     });
+            //     setLaunchPlayer(true);
+            // },
+        }),
+        [setHitPower, setHitRotation],
+    );
 
     return actions;
 }
@@ -107,20 +133,26 @@ export function useHeldAction(action) {
         }
     }, []);
 
-    const start = useCallback((e) => {
-        stop();
-        actionRef.current();
-        const loop = () => {
+    const start = useCallback(
+        (e) => {
+            stop();
             actionRef.current();
+            const loop = () => {
+                actionRef.current();
+                rafRef.current = requestAnimationFrame(loop);
+            };
             rafRef.current = requestAnimationFrame(loop);
-        };
-        rafRef.current = requestAnimationFrame(loop);
-    }, [stop]);
+        },
+        [stop],
+    );
 
-    return useMemo(() => ({
-        onPointerDown: start,
-        onPointerUp: stop,
-        onPointerLeave: stop,
-        onPointerCancel: stop,
-    }), [start, stop]);
+    return useMemo(
+        () => ({
+            onPointerDown: start,
+            onPointerUp: stop,
+            onPointerLeave: stop,
+            onPointerCancel: stop,
+        }),
+        [start, stop],
+    );
 }

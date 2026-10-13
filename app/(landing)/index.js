@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -11,10 +11,18 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InfoIcon from "@mui/icons-material/Info";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import PaletteIcon from "@mui/icons-material/Palette";
-import { GamepadKeyboard, PieMenu } from "@articles-media/articles-gamepad-helper";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import {
+    GamepadKeyboard,
+    PieMenu,
+} from "@articles-media/articles-gamepad-helper";
 import PageTemplateLandingPage from "@articles-media/articles-dev-box/PageTemplateLandingPage";
 import { useStore } from "@/hooks/useStore";
 import { useSocketStore } from "@/hooks/useSocketStore";
+import { useGameStore } from "@/hooks/useGameStore";
+import { resetScores } from "@/hooks/useScoreStore";
+import { SinglePlayerScoreboard } from "@/components/UI/SinglePlayerGameOverDialog";
+import ArticlesButton from "@articles-media/articles-dev-box/Button";
 
 const LandingBackgroundAnimation = dynamic(
     () => import("@/components/Game/LandingBackgroundAnimation"),
@@ -25,11 +33,20 @@ export default function LobbyPage() {
     const darkMode = useStore((state) => state.darkMode);
     const nicknameKeyboard = useStore((state) => state.nicknameKeyboard);
 
+    useEffect(() => {
+        const store = useGameStore.getState();
+        store.resetGameState();
+        store.setTeleport([0, 1.1, 0]);
+    }, []);
+
     const pieOptions = [
         {
             label: "Settings",
             Icon: SettingsIcon,
-            callback: () => useStore.getState().setShowSettingsModal((previous) => !previous),
+            callback: () =>
+                useStore
+                    .getState()
+                    .setShowSettingsModal((previous) => !previous),
         },
         {
             label: "Go Back",
@@ -96,7 +113,11 @@ export default function LobbyPage() {
                     width: "100%",
                     height: "100%",
                     zIndex: -1,
-                    "& img": { filter: "blur(4px)", width: "100%", height: "100%" },
+                    "& img": {
+                        filter: "blur(4px)",
+                        width: "100%",
+                        height: "100%",
+                    },
                 },
             }}
         >
@@ -108,13 +129,22 @@ export default function LobbyPage() {
                         useStore.getState().setNickname(text);
                         useStore.getState().setNicknameKeyboard(false);
                     }}
-                    onCancel={() => useStore.getState().setNicknameKeyboard(false)}
+                    onCancel={() =>
+                        useStore.getState().setNicknameKeyboard(false)
+                    }
                 />
                 {/* PieMenu renders React nodes in labels, so put the icons there. */}
                 <PieMenu
                     options={pieOptions.map(({ label, Icon, callback }) => ({
                         label: (
-                            <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}>
+                            <Box
+                                component="span"
+                                sx={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                }}
+                            >
                                 <Icon fontSize="small" />
                                 {label}
                             </Box>
@@ -133,7 +163,16 @@ export default function LobbyPage() {
                 logoImage="img/icon.png"
                 LandingBackgroundAnimation={<LandingBackgroundAnimation />}
                 heroOverride={
-                    <Box sx={{ mb: "1rem", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "relative" }}>
+                    <Box
+                        sx={{
+                            mb: "1rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            position: "relative",
+                        }}
+                    >
                         <Image
                             src="/img/icon.png"
                             alt="Logo"
@@ -147,7 +186,8 @@ export default function LobbyPage() {
                                 fontSize: "2.5rem",
                                 fontWeight: 900,
                                 WebkitTextStroke: "2px #f4dfba",
-                                animation: "hero-scale-pulse 2s infinite ease-in-out",
+                                animation:
+                                    "hero-scale-pulse 2s infinite ease-in-out",
                                 mt: "-2rem",
                                 "@keyframes hero-scale-pulse": {
                                     "0%, 100%": { transform: "scale(1)" },
@@ -155,15 +195,38 @@ export default function LobbyPage() {
                                 },
                             }}
                         >
-                            <Box component="span" sx={{ color: "#54b88b" }}>Mem</Box>
-                            <Box component="span" sx={{ color: "#656b99" }}>ory</Box>
-                            {" "}
-                            <Box component="span" sx={{ color: "#ffb419" }}>Ga</Box>
-                            <Box component="span" sx={{ color: "#f94567" }}>me</Box>
+                            <Box
+                                component="span"
+                                sx={{ color: "#54b88b" }}
+                            >
+                                Mem
+                            </Box>
+                            <Box
+                                component="span"
+                                sx={{ color: "#656b99" }}
+                            >
+                                ory
+                            </Box>{" "}
+                            <Box
+                                component="span"
+                                sx={{ color: "#ffb419" }}
+                            >
+                                Ga
+                            </Box>
+                            <Box
+                                component="span"
+                                sx={{ color: "#f94567" }}
+                            >
+                                me
+                            </Box>
                         </Box>
                     </Box>
                 }
-                backgroundImage={darkMode ? "/img/dark-preview.webp" : "/img/preview.webp"}
+                backgroundImage={
+                    darkMode
+                        ? "/img/previews/dark.webp"
+                        : "/img/previews/preview.webp"
+                }
                 singlePlayerConfig={{
                     attachServerType: "single-player",
                 }}
@@ -173,6 +236,41 @@ export default function LobbyPage() {
                     defaultServers: 2,
                     privateServerSupport: false,
                     onlinePlayersTemplate: "2.0",
+                }}
+                gameScoreboardConfig={{
+                    CardBodyOverride: <SinglePlayerScoreboard />,
+                    disableRefreshButton: true,
+                    disableJoinScoreboardSetting: true,
+                    ScoreboardSettingsContent: () => (
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                gap: 1,
+                                p: 2,
+                                width: 1,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.75,
+                                }}
+                            >
+                                <DeleteForeverIcon fontSize="small" />
+                                <Box component="span">Reset Scores?</Box>
+                            </Box>
+
+                            <ArticlesButton
+                                small
+                                onClick={resetScores}
+                            >
+                                Reset
+                            </ArticlesButton>
+                        </Box>
+                    ),
                 }}
                 brandingTextClass="jaro-primary"
             />

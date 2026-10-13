@@ -1,28 +1,34 @@
-import { useFrame, useThree } from "@react-three/fiber"
-import { useSphere } from "@react-three/cannon"
-import { useGLTF, useAnimations, Text } from '@react-three/drei'
-import { memo, useEffect, useRef } from "react"
-import { Vector3 } from "three"
-import * as THREE from 'three';
-import { useKeyboard } from "@/hooks/useKeyboard"
+import { useFrame } from "@react-three/fiber";
+import {
+    BallCollider,
+    RigidBody,
+    useAfterPhysicsStep,
+} from "@react-three/rapier";
+import { Suspense, useEffect, useRef } from "react";
+import { Vector3 } from "three";
+import { useKeyboard } from "@/hooks/useKeyboard";
 
 import { Model as SpacesuitModel } from "@/components/Models/Spacesuit";
+import ModelToonCharacter from "@/components/Models/ModelToonCharacter";
 
-import { useControllerStore } from '@/hooks/useControllerStore';
+import { useControllerStore } from "@/hooks/useControllerStore";
 import { useGameStore } from "@/hooks/useGameStore";
 import useControlsStore from "@/hooks/useTouchControlsStore";
 import { useSocketStore } from "@/hooks/useSocketStore";
 
-// import ClownfishModel from "./PlayerModels/Clownfish"
-// import BoneFishModel from "./PlayerModels/BoneFish"
-import { useLocalStorageNew } from "@/hooks/useLocalStorageNew"
-import { degToRad } from "three/src/math/MathUtils.js"
-import { useSearchParams } from "next/navigation"
+import { degToRad } from "three/src/math/MathUtils.js";
+import { useSearchParams } from "next/navigation";
+import { useStore } from "@/hooks/useStore";
 
 const JUMP_FORCE = 0;
 const SPEED = 12;
+const PLAYER_BOUNDARY = 29;
 
-let lastLocation
+function clampPlayerCoordinate(value) {
+    return Math.max(-PLAYER_BOUNDARY, Math.min(PLAYER_BOUNDARY, value));
+}
+
+let lastLocation;
 
 function myToFixed(i, digits) {
     var pow = Math.pow(10, digits);
@@ -30,207 +36,212 @@ function myToFixed(i, digits) {
     return Math.floor(i * pow) / pow;
 }
 
-function Player(props) {
-
-    const searchParams = useSearchParams()
+function Player() {
+    const searchParams = useSearchParams();
     const params = Object.fromEntries(searchParams.entries());
-    const { server } = params
-
-    // const { setPlayerData, teleportPlayer, setTeleportPlayer } = props;
+    const { server } = params;
 
     const {
-        cameraMode, setCameraMode,
-        teleport, setTeleport,
+        teleport,
+        setTeleport,
         setPlayerLocation,
-        maxHeight, setMaxHeight,
-        shift, setShift,
+        maxHeight,
+        setMaxHeight,
+        shift,
+        setShift,
         addDistance,
-        debug
-    } = useGameStore()
+    } = useGameStore();
 
-    const {
-        touchControls, setTouchControls
-    } = useControlsStore()
+    const toontownMode = useStore((state) => state.toontownMode);
 
-    const { socket } = useSocketStore()
+    const { touchControls, setTouchControls } = useControlsStore();
 
-    const { controllerState, setControllerState } = useControllerStore()
+    const { socket } = useSocketStore();
 
-    const [character, setCharacter] = useLocalStorageNew("game:ocean-rings:character", {
-        model: 'Clownfish',
-        color: '#000000'
-    })
-
-    const [ref, api] = useSphere(() => ({
-        mass: 1,
-        args: [0.2],
-        position: [0, 1.1, 0],
-        onCollide: (e) => {
-
-            console.log("Player collided with a card", e?.body)
-
-        }
-    }))
+    const { controllerState } = useControllerStore();
+    const ref = useRef();
 
     // Attach event listeners when the component mounts
     useEffect(() => {
-
-        if (controllerState.axes && Math.abs(controllerState?.axes[0]) > 0.3) {
-
+        if (
+            ref.current &&
+            controllerState.axes &&
+            Math.abs(controllerState?.axes[0]) > 0.3
+        ) {
             if (controllerState?.axes[0] > 0) {
-                api.position.set([-1, 5, 0]);
+                ref.current.setTranslation({ x: -1, y: 5, z: 0 }, true);
             } else {
-                api.position.set([1, 5, 0]);
+                ref.current.setTranslation({ x: 1, y: 5, z: 0 }, true);
             }
-
         }
-
-    }, [controllerState, api.position]);
+    }, [controllerState]);
 
     useEffect(() => {
-
-        if (teleport) {
-
-            console.log("Teleport has been called!", teleport)
-            api.position.set(teleport[0], teleport[1], teleport[2]);
-            setTeleport(false)
-
+        if (teleport && ref.current) {
+            console.log("Teleport has been called!", teleport);
+            ref.current.setTranslation(
+                {
+                    x: clampPlayerCoordinate(teleport[0]),
+                    y: teleport[1],
+                    z: clampPlayerCoordinate(teleport[2]),
+                },
+                true,
+            );
+            ref.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+            setTeleport(false);
         }
+    }, [teleport, setTeleport]);
 
-    }, [teleport, setTeleport, api.position]);
+    const {
+        moveBackward,
+        moveForward,
+        moveRight,
+        moveLeft,
+        jump,
+        shift: isShifting,
+        crouch,
+        lastMove,
+    } = useKeyboard();
 
-    const { moveBackward, moveForward, moveRight, moveLeft, jump, shift: isShifting, crouch, lastMove } = useKeyboard()
+    const isWalking = Boolean(
+        moveLeft ||
+        moveRight ||
+        moveBackward ||
+        moveForward ||
+        touchControls.left ||
+        touchControls.right ||
+        touchControls.up ||
+        touchControls.down,
+    );
+    const action = isWalking ? "Walk" : "Idle";
 
-    const action = moveLeft || moveRight || moveBackward || moveForward ? "Walk" : "Idle"
+    const vel = useRef([0, 0, 0]);
+    const pos = useRef([0, 0, 0]);
 
-    const { camera } = useThree()
+    useEffect(() => {
+        console.log("Shift", isShifting);
+        setShift(isShifting);
+    }, [isShifting, setShift]);
 
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 'blue',
-        opacity: 0,
-        transparent: true,
+    // Correct every physics step so running or a long frame cannot cross the boundary.
+    useAfterPhysicsStep(() => {
+        const body = ref.current;
+        if (!body) return;
+        const translation = body.translation();
+        const x = clampPlayerCoordinate(translation.x);
+        const z = clampPlayerCoordinate(translation.z);
+        if (x === translation.x && z === translation.z) return;
+
+        const velocity = body.linvel();
+        body.setTranslation({ x, y: translation.y, z }, true);
+        body.setLinvel(
+            {
+                x: (translation.x - x) * velocity.x > 0 ? 0 : velocity.x,
+                y: velocity.y,
+                z: (translation.z - z) * velocity.z > 0 ? 0 : velocity.z,
+            },
+            true,
+        );
     });
 
-    const vel = useRef([0, 0, 0])
-    useEffect(() => {
-        api.velocity.subscribe((v) => vel.current = v)
-    }, [api.velocity])
-
-    const pos = useRef([0, 0, 0])
-
-    const playerModelRef = useRef()
-
-    useEffect(() => {
-
-        api.position.subscribe((p) => pos.current = p)
-
-        if (playerModelRef.current) {
-            // Get the current position of the sphere from the physics API
-            api.position.subscribe((position) => {
-
-                playerModelRef.current.position.set(...position);
-
-            });
-        }
-
-    }, [api.position])
-
-    useEffect(() => {
-        console.log("Shift", isShifting)
-        setShift(isShifting)
-    }, [isShifting, setShift])
-
     useFrame(() => {
+        const body = ref.current;
+        if (!body) return;
 
-        addDistance(0.1)
+        const translation = body.translation();
+        const velocity = body.linvel();
+        pos.current = [translation.x, translation.y, translation.z];
+        vel.current = [velocity.x, velocity.y, velocity.z];
+
+        addDistance(0.1);
 
         // if (cameraMode == "Player") {
         //     camera.position.copy(new Vector3(0, pos.current[1], (pos.current[2] + 10)))
         //     camera.lookAt(new Vector3(0, pos.current[1], (pos.current[2] + 5)))
         // }
 
-        let posX = 0
+        let posX = 0;
         if (pos.current[0]) {
-            posX = myToFixed(pos.current[0], 2)
+            posX = myToFixed(pos.current[0], 2);
         }
 
         // console.log(pos.current[1])
-        let posY = 0
+        let posY = 0;
         if (pos.current[1]) {
-            posY = myToFixed(pos.current[1], 2)
+            posY = myToFixed(pos.current[1], 2);
         }
 
-        let posZ = 0
+        let posZ = 0;
         if (pos.current[2]) {
-            posZ = myToFixed(pos.current[2], 2)
+            posZ = myToFixed(pos.current[2], 2);
         }
 
         // console.log(posX)
 
-        let newLocation = new Vector3(posX, posY, posZ)
+        let newLocation = new Vector3(posX, posY, posZ);
 
         if (JSON.stringify(lastLocation) !== JSON.stringify(newLocation)) {
             // console.log(newLocation, lastLocation)
-            setPlayerLocation(newLocation)
+            setPlayerLocation(newLocation);
 
             if (socket) {
-                socket.emit('game:memory-game:move', {
+                socket.emit("game:memory-game:move", {
                     server: server,
                     x: newLocation.x,
                     // y: newLocation.y,
                     z: newLocation.z,
                     action: action,
-                    rotation: [0, degToRad(lastMove), 0]
-                })
+                    rotation: [0, degToRad(lastMove), 0],
+                });
             }
 
-            lastLocation = newLocation
+            lastLocation = newLocation;
         }
         // else {
         //     console.log("location unchanged")
         // }
 
         if (pos.current[1] > maxHeight) {
-            setMaxHeight(pos.current[1].toFixed(2))
+            setMaxHeight(pos.current[1].toFixed(2));
         }
 
-        const direction = new Vector3()
+        const direction = new Vector3();
 
         const frontVector = new Vector3(
             0,
             0,
-            (moveForward || touchControls.up ? -1 : 0) - (moveBackward || touchControls.down ? -1 : 0),
-        )
+            (moveForward || touchControls.up ? -1 : 0) -
+                (moveBackward || touchControls.down ? -1 : 0),
+        );
 
         const sideVector = new Vector3(
-            (moveLeft || touchControls.left ? 1 : 0) - (moveRight || touchControls.right ? 1 : 0),
+            (moveLeft || touchControls.left ? 1 : 0) -
+                (moveRight || touchControls.right ? 1 : 0),
             0,
             0,
-        )
+        );
 
         direction
             .subVectors(frontVector, sideVector)
             .normalize()
-            .multiplyScalar(SPEED * (shift ? 2 : 1))
+            .multiplyScalar(SPEED * (shift ? 2 : 1));
         // .applyEuler(camera.rotation)
 
-        // Boundary constraints: -40 to 40 for X and Z
-        const BOUNDARY = 40;
+        // Stop outward movement at -29/+29 while allowing movement along the edge.
         let nextVelX = direction.x;
         let nextVelZ = direction.z;
 
-        if (pos.current[0] <= -BOUNDARY && nextVelX < 0) nextVelX = 0;
-        if (pos.current[0] >= BOUNDARY && nextVelX > 0) nextVelX = 0;
-        if (pos.current[2] <= -BOUNDARY && nextVelZ < 0) nextVelZ = 0;
-        if (pos.current[2] >= BOUNDARY && nextVelZ > 0) nextVelZ = 0;
+        if (pos.current[0] <= -PLAYER_BOUNDARY && nextVelX < 0) nextVelX = 0;
+        if (pos.current[0] >= PLAYER_BOUNDARY && nextVelX > 0) nextVelX = 0;
+        if (pos.current[2] <= -PLAYER_BOUNDARY && nextVelZ < 0) nextVelZ = 0;
+        if (pos.current[2] >= PLAYER_BOUNDARY && nextVelZ > 0) nextVelZ = 0;
 
-        api.velocity.set(nextVelX, 0, nextVelZ)
+        body.setLinvel({ x: nextVelX, y: velocity.y, z: nextVelZ }, true);
 
         if ((jump || touchControls.jump) && Math.abs(vel.current[1]) < 0.05) {
+            console.log("Jump understood");
 
-            console.log("Jump understood")
-
-            api.velocity.set(vel.current[0], JUMP_FORCE, vel.current[2])
+            body.setLinvel({ x: nextVelX, y: JUMP_FORCE, z: nextVelZ }, true);
 
             if (
                 touchControls.jump
@@ -244,53 +255,49 @@ function Player(props) {
                     jump: false,
                     // left: false,
                     // right: false
-                })
+                });
             }
         }
-
-    })
+    });
 
     return (
-        <group>
+        <RigidBody
+            ref={ref}
+            position={[0, 1.1, 0]}
+            colliders={false}
+            enabledRotations={[false, false, false]}
+            userData={{ isPlayer: true }}
+            ccd
+        >
+            <BallCollider
+                args={[0.2]}
+                mass={1}
+                friction={0}
+                restitution={0}
+            />
 
-            <group
-                ref={playerModelRef}
-            >
-                <SpacesuitModel
-                    scale={3}
-                    position={[0, -0.2, 0]}
-                    action={action}
-                    rotation={[0, degToRad(lastMove), 0]}
-                />
-            </group>
-
-            <mesh
-                ref={ref}
-                // {...props}
-                // position={position}
-                material={material}
-            >
-                {/* {!debug &&
-                    <sphereGeometry 
-                        args={[1, 32, 32]} 
-                        opacity={0}
-                        transparent
+            <Suspense fallback={null}>
+                {toontownMode ? (
+                    <ModelToonCharacter
+                        position={[0, -0.2, 0]}
+                        action={action}
+                        isWalking={isWalking}
+                        isSprinting={isWalking && shift}
+                        rotation={[0, degToRad(lastMove), 0]}
+                        // scale={0.5}
                     />
-                } */}
-
-                {/* {character.model == 'Clownfish' && <ClownfishModel rotation={[0, Math.PI / 1, 0]} />}
-                {character.model == 'Bone Fish' && <BoneFishModel rotation={[0, -Math.PI / 2, 0]} />} */}
-
-                {/* <Text
-                    color="black" position={[0, -0.7, 0]} scale={0.3} anchorX="center" anchorY="middle"
-                >
-                    Player ({character.model})
-                </Text> */}
-
-            </mesh>
-
-        </group>
-    )
+                ) : (
+                    <SpacesuitModel
+                        brightness={0.35}
+                        scale={3}
+                        position={[0, -0.2, 0]}
+                        action={action}
+                        rotation={[0, degToRad(lastMove), 0]}
+                    />
+                )}
+            </Suspense>
+        </RigidBody>
+    );
 }
 
-export default Player
+export default Player;

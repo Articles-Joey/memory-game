@@ -1,5 +1,5 @@
 // import { create } from 'zustand'
-import { createWithEqualityFn as create } from 'zustand/traditional'
+import { createWithEqualityFn as create } from "zustand/traditional";
 
 export function generateMatchPairs(rows, cols) {
     // Step 1: Generate the cards with locations
@@ -29,56 +29,74 @@ export function generateMatchPairs(rows, cols) {
         card.matchValue = matchValues[index];
     });
 
-    console.log(cards)
+    console.log(cards);
     return cards;
 }
 
-export const useGameStore = create((set) => ({
-
-    cameraMode: 'Player',
+export const useGameStore = create((set, get) => ({
+    cameraMode: "Player",
     setCameraMode: (newValue) => {
         set((prev) => ({
-            cameraMode: newValue
-        }))
+            cameraMode: newValue,
+        }));
     },
 
     playerLocation: false,
     setPlayerLocation: (newValue) => {
         set((prev) => ({
-            playerLocation: newValue
-        }))
+            playerLocation: newValue,
+        }));
     },
 
     maxHeight: 0,
     setMaxHeight: (newValue) => {
         set((prev) => ({
-            maxHeight: newValue
-        }))
+            maxHeight: newValue,
+        }));
     },
 
     debug: false,
     setDebug: (newValue) => {
         set((prev) => ({
-            debug: newValue
-        }))
+            debug: newValue,
+        }));
     },
 
     timer: 0,
     setTimer: (newValue) => {
         set((prev) => ({
-            timer: newValue
-        }))
+            timer: newValue,
+        }));
     },
     addTimer: (newValue) => {
         set((prev) => ({
             gameState: {
                 ...prev.gameState,
-                timer: prev.gameState.timer + 1
-            }
-        }))
+                timer: prev.gameState.timer + 1,
+            },
+        }));
+    },
+    startSinglePlayerGame: () => {
+        const gameState = get().gameState;
+        if (gameState.status === "Game Over") return false;
+        if (
+            gameState.status === "In Progress" &&
+            Number.isFinite(gameState.startedAt)
+        )
+            return true;
+        set({
+            gameState: {
+                ...gameState,
+                status: "In Progress",
+                roundId: gameState.roundId || crypto.randomUUID(),
+                startedAt: Date.now() - (gameState.timer ?? 0) * 1000,
+                result: null,
+                resultDialogOpen: false,
+            },
+        });
+        return true;
     },
 
-    matchPairs: generateMatchPairs(4, 8),
     // setMatchPairs: (newValue) => {
     //     set((prev) => ({
     //         matchPairs: newValue
@@ -89,63 +107,70 @@ export const useGameStore = create((set) => ({
             // matchPairs: newValue
             gameState: {
                 ...prev.gameState,
-                matchPairs: newValue
-            }
-        }))
+                matchPairs: newValue,
+            },
+        }));
     },
     generateMatchPairs: () => {
-        let newPairs = generateMatchPairs(4, 8)
+        let newPairs = generateMatchPairs(4, 8);
         set((prev) => ({
             // matchPairs: newPairs,
             // flipCount: 0
             gameState: {
                 ...prev.gameState,
                 matchPairs: newPairs,
-                flipCount: 0
-            }
-        }))
+                flipCount: 0,
+                timer: 0,
+                status: "In Lobby",
+                roundId: crypto.randomUUID(),
+                startedAt: null,
+                endedAt: null,
+                result: null,
+                resultDialogOpen: false,
+            },
+        }));
     },
 
     distance: 0,
     setDistance: (newValue) => {
         set((prev) => ({
-            distance: newValue
-        }))
+            distance: newValue,
+        }));
     },
     addDistance: (newValue) => {
         set((prev) => ({
-            distance: (prev.distance + newValue)
-        }))
+            distance: prev.distance + newValue,
+        }));
     },
 
     obstacles: [],
     setObstacles: (newValue) => {
         set((prev) => ({
-            obstacles: newValue
-        }))
+            obstacles: newValue,
+        }));
     },
 
     shift: false,
     setShift: (newValue) => {
         set((prev) => ({
-            shift: newValue
-        }))
+            shift: newValue,
+        }));
     },
 
     flipCount: 0,
     setFlipCount: (newValue) => {
         set((prev) => ({
-            flipCount: newValue
-        }))
+            flipCount: newValue,
+        }));
     },
     addFlipCount: (newValue) => {
         set((prev) => ({
             // flipCount: prev.flipCount + 1
             gameState: {
                 ...prev.gameState,
-                flipCount: prev.gameState.flipCount + 1
-            }
-        }))
+                flipCount: (prev.gameState.flipCount ?? 0) + 1,
+            },
+        }));
     },
 
     // Logic now inside matchPairs
@@ -159,40 +184,55 @@ export const useGameStore = create((set) => ({
     touchControls: {
         jump: false,
         left: false,
-        right: false
+        right: false,
     },
     setTouchControls: (newValue) => {
         set((prev) => ({
-            touchControls: newValue
-        }))
+            touchControls: newValue,
+        }));
     },
 
     teleport: false,
     setTeleport: (newValue) => {
         set((prev) => ({
-            teleport: newValue
-        }))
+            teleport: newValue,
+        }));
     },
 
-    gameState: {},
+    gameState: {
+        timer: 0,
+        flipCount: 0,
+        matchPairs: generateMatchPairs(4, 8),
+        flippedCards: [],
+        maxTime: 150,
+        startedAt: null,
+        result: null,
+        resultDialogOpen: false,
+    },
     resetGameState: () => {
+        let newPairs = generateMatchPairs(4, 8);
+        console.log("Resetting game state with new pairs", newPairs);
 
-        let newPairs = generateMatchPairs(4, 8)
-        console.log("Resetting game state with new pairs", newPairs)
-        
         set((prev) => ({
             gameState: {
+                ...prev.gameState,
+                status: "In Lobby",
                 timer: 0,
                 flipCount: 0,
                 matchPairs: newPairs,
                 flippedCards: [],
+                roundId: crypto.randomUUID(),
+                startedAt: null,
+                endedAt: null,
+                result: null,
+                resultDialogOpen: false,
                 // Add any other properties you want to reset here
-            }
-        }))
+            },
+        }));
     },
     setGameState: (newValue) => {
         set((prev) => ({
-            gameState: newValue
-        }))
+            gameState: newValue,
+        }));
     },
-}))
+}));
