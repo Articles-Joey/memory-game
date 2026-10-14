@@ -71,6 +71,28 @@ function createWoodTexture() {
     return texture;
 }
 
+function createWoodMaterial(texture) {
+    const material = new MeshStandardMaterial({ map: texture, roughness: 0.9 });
+    material.onBeforeCompile = (shader) => {
+        shader.vertexShader = shader.vertexShader.replace(
+            "#include <uv_vertex>",
+            `#include <uv_vertex>
+            #if defined(USE_MAP) && defined(USE_INSTANCING)
+                // Each plank's position seeds a stable texture rotation and offset.
+                float woodSeed = dot(instanceMatrix[3].xyz, vec3(12.9898, 78.233, 37.719));
+                vec3 woodRandom = fract(sin(vec3(woodSeed, woodSeed + 17.0, woodSeed + 43.0)) * 43758.5453);
+                float woodAngle = woodRandom.x * 6.28318530718;
+                float woodCos = cos(woodAngle);
+                float woodSin = sin(woodAngle);
+                vMapUv = mat2(woodCos, woodSin, -woodSin, woodCos)
+                    * (vMapUv - vec2(0.5)) + vec2(0.5) + woodRandom.yz;
+            #endif`,
+        );
+    };
+    material.customProgramCacheKey = () => "wooden-picket-fence-random-uv-v1";
+    return material;
+}
+
 function createPicketGeometry(height) {
     const halfWidth = PICKET_WIDTH / 2;
     const shoulderHeight = height - PICKET_WIDTH * 0.65;
@@ -167,11 +189,8 @@ export default function WoodenPicketFence({
         return {
             texture,
             railTexture,
-            wood: new MeshStandardMaterial({ map: texture, roughness: 0.9 }),
-            railWood: new MeshStandardMaterial({
-                map: railTexture,
-                roughness: 0.9,
-            }),
+            wood: createWoodMaterial(texture),
+            railWood: createWoodMaterial(railTexture),
             picket: createPicketGeometry(height),
             box: new BoxGeometry(1, 1, 1),
             cap: new ConeGeometry(POST_WIDTH / Math.sqrt(2), CAP_HEIGHT, 4),

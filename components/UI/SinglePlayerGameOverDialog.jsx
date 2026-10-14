@@ -1,12 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import FlipToFrontIcon from "@mui/icons-material/FlipToFront";
+import HistoryIcon from "@mui/icons-material/History";
+import TimerIcon from "@mui/icons-material/Timer";
 import Box from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -17,6 +23,12 @@ import Typography from "@mui/material/Typography";
 import { useGameStore } from "@/hooks/useGameStore";
 import { useScoreStore } from "@/hooks/useScoreStore";
 import ArticlesButton from "./Button";
+
+const scoreViews = {
+    flips: { label: "Best Flips", icon: FlipToFrontIcon },
+    time: { label: "Best Time", icon: TimerIcon },
+    recent: { label: "Recent", icon: HistoryIcon },
+};
 
 function formatTime(seconds) {
     return (
@@ -69,8 +81,11 @@ export function SinglePlayerScoreboard({
     const leastTimeScores = useScoreStore((state) => state.leastTimeScores);
     const recentScores = useScoreStore((state) => state.recentScores);
     const [view, setView] = useState("flips");
+    const [anchorEl, setAnchorEl] = useState(null);
+    const dropdownId = useId();
     const [sortBy, setSortBy] = useState("flips");
     const [sortDirection, setSortDirection] = useState("asc");
+    const ActiveViewIcon = scoreViews[view].icon;
     const rows = useMemo(() => {
         const scores =
             view === "flips"
@@ -115,31 +130,61 @@ export function SinglePlayerScoreboard({
         setSortBy(column);
     };
 
+    const selectView = (next) => {
+        setView(next);
+        setSortBy(next === "recent" ? "playedAt" : next);
+        setSortDirection(next === "recent" ? "desc" : "asc");
+        setAnchorEl(null);
+    };
+
     return (
         <Box>
-            <Tabs
-                value={view}
-                variant="fullWidth"
-                onChange={(_, next) => {
-                    setView(next);
-                    setSortBy(next === "recent" ? "playedAt" : next);
-                    setSortDirection(next === "recent" ? "desc" : "asc");
+            <Box
+                sx={{
+                    m: 1,
                 }}
-                aria-label="Saved results"
             >
-                <Tab
-                    value="flips"
-                    label="Best flips"
-                />
-                <Tab
-                    value="time"
-                    label="Best time"
-                />
-                <Tab
-                    value="recent"
-                    label="Recent"
-                />
-            </Tabs>
+                <ArticlesButton
+                    id={`${dropdownId}-button`}
+                    aria-label={`Saved results: ${scoreViews[view].label}`}
+                    aria-haspopup="menu"
+                    aria-controls={anchorEl ? `${dropdownId}-menu` : undefined}
+                    aria-expanded={Boolean(anchorEl)}
+                    onClick={(event) => setAnchorEl(event.currentTarget)}
+                    startIcon={<ActiveViewIcon fontSize="small" />}
+                    endIcon={<ArrowDropDownIcon />}
+                    sx={{ m: 0, width: "100%" }}
+                >
+                    {scoreViews[view].label}
+                </ArticlesButton>
+            </Box>
+            <Menu
+                id={`${dropdownId}-menu`}
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={() => setAnchorEl(null)}
+                slotProps={{
+                    paper: {
+                        sx: { width: anchorEl?.getBoundingClientRect().width },
+                    },
+                    list: { "aria-labelledby": `${dropdownId}-button` },
+                }}
+            >
+                {Object.entries(scoreViews).map(
+                    ([value, { label, icon: Icon }]) => (
+                        <MenuItem
+                            key={value}
+                            selected={view === value}
+                            onClick={() => selectView(value)}
+                        >
+                            <ListItemIcon>
+                                <Icon fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText>{label}</ListItemText>
+                        </MenuItem>
+                    ),
+                )}
+            </Menu>
             <Table
                 size="small"
                 aria-label="Saved game results"
@@ -192,9 +237,15 @@ export function SinglePlayerScoreboard({
                                 score.id === highlightedResultId
                             }
                         >
-                            <TableCell>{formatTime(score.time)}</TableCell>
+                            <TableCell
+                                sx={{ fontSize: "0.8125rem", lineHeight: 1.2 }}
+                            >
+                                {formatTime(score.time)}
+                            </TableCell>
                             <TableCell>{score.flips}</TableCell>
-                            <TableCell>
+                            <TableCell
+                                sx={{ fontSize: "0.8125rem", lineHeight: 1.2 }}
+                            >
                                 {formatScoreDate(score.playedAt)}
                             </TableCell>
                         </TableRow>
