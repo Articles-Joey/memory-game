@@ -47,6 +47,10 @@ function GameCanvas({
 }) {
     const orbitControlsRef = useRef();
     const debug = useStore((state) => state.debug);
+    const showStats = useStore((state) => state?.debugConfig?.showStats);
+    const showPhysicsDebug = useStore(
+        (state) => state?.debugConfig?.showPhysicsDebug,
+    );
     const darkMode = useStore((state) => state.darkMode);
     const graphicsQuality = useStore((state) => state.graphicsQuality);
     const toontownMode = useStore((state) => state.toontownMode);
@@ -73,10 +77,8 @@ function GameCanvas({
             ]}
             gl={{ toneMapping: ACESFilmicToneMapping, toneMappingExposure: 1 }}
         >
-            {debug && <axesHelper args={[5]} />}
-            {process.env.NODE_ENV === "development" && (
-                <Stats className="stats-overlay" />
-            )}
+            {showPhysicsDebug && <axesHelper args={[5]} />}
+            {showStats && <Stats className="stats-overlay" />}
 
             <OrbitControls
                 ref={orbitControlsRef}
@@ -140,7 +142,7 @@ function GameCanvas({
             </Suspense>
 
             <Suspense>
-                <Debug debug={debug}>
+                <Debug debug={showPhysicsDebug}>
                     {landingAnimationMode !== true && (
                         <>
                             <Player />
